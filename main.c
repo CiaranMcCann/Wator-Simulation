@@ -4,6 +4,7 @@
 #include "Globals.h"
 #include "GridPosition.h"
 #include "Drawing.h"
+#include "World.h"
 
 /*! \brief The main entry point for the program.
  */
