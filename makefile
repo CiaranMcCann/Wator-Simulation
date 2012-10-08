@@ -6,11 +6,12 @@
 # This is a very simple make file, more will be added to this to add in deps
 
 CC=gcc
-CFLAGS=-I.
+CFLAGS=-lX11 -lGL -lGLU -I.
+APP=Wator
 
-Wator: main.o main.o	
-	$(CC) -o Wator main.o $(CFLAGS).	
+build: main.o
+	$(CC) -o $(APP) main.o $(CFLAGS)
 
 clean:
-	rm Wator
 	rm *.o
+	rm $(APP)
