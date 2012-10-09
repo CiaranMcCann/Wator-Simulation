@@ -7,6 +7,11 @@
 #include <time.h>
 #include <stdlib.h>
 
+/*! \brief Used to store pionters to either fish or sharks.
+ *
+ *  Note: Used this struct instead of a void * Array as the casting process
+ *  is messy and this is much simplier means of storing different types in one array.
+ */
 typedef struct {
     Fish * pFish;
     Shark * pShark;
@@ -15,50 +20,6 @@ typedef struct {
  // Array of GirdObjs which
 GirdObj world[GRID_ROWS][GRID_COLUMNS ];
 
-// Seems to be no standard LinkedList lib? Joe lied? wtf?
-//TODO Linked list of sharks
-//TODO linked list of fish
-
-
-/*! \brief Populates the world
- *
- *  Randomly populates the world array with sharks and fish
- *  \param nFish - Number of fish
- *  \param nShark - Number of sharks
- */
-void populate(int nFish, int nSharks){
-//    Its probably a good idea to emphasize that srand() should only be called once.
-//    Also, in a threaded application, might want to make sure that the generator's
-//    state is stored per thread, and seed the generator once for each thread.
-    srand(time(NULL));
-
-    int total = nFish + nSharks;
-
-    int i = 0; //C90 standard doesn't allow loop var declaration inside loop
-    for(i = 0; i < total; i++)
-    {
-        if(total - nFish > nSharks){
-            //continue with popluating fish
-            world[rand() % GRID_ROWS][rand() % GRID_COLUMNS ].pFish = 0; // malloc(sizeof(Fish));
-        }else{
-            // once all fish done popluate sharks
-            world[rand() % GRID_ROWS][rand() % GRID_COLUMNS ].pShark = 0; //malloc(sizeof(Shark));
-        }
-
-    }
-
-}
-
-/*! \brief Destories the enity at given grid location
- *
- *  Destories the enity at given grid location
- *  \param x - index into array
- *  \param y - index into array
- */
-void clean(){
-
-
-}
 
 /*! \brief Creates either a fish or a shark.
  *
@@ -70,9 +31,9 @@ void _createAt(int x, int y, int fishFlag)
     {
         if(fishFlag)
         {
-              world[x][y].pFish = 0; //TODO: Linked list push malloc(sizeof(Fish));
+              world[x][y].pFish = fishFactory(x,y);
         }else{
-            world[x][y].pShark = 0; //TODO: Linked list push malloc(sizeof(Shark))
+            world[x][y].pShark = sharkFactory(x,y);
         }
     }
 }
@@ -86,7 +47,8 @@ void _createAt(int x, int y, int fishFlag)
  */
 void destoryAt(int x, int y)
 {
-
+    free(world[x][y].pFish);
+    free(world[x][y].pShark);
 }
 
 
@@ -109,6 +71,88 @@ void createFishAt(int x, int y){
 void createSharkAt(int x, int y){
     _createAt(x,y,0);
 }
+
+
+/*! \brief Populates the world
+ *
+ *  Randomly populates the world array with sharks and fish
+ *  \param nFish - Number of fish
+ *  \param nShark - Number of sharks
+ */
+void populateWorld(int nFish, int nSharks){
+//    Its probably a good idea to emphasize that srand() should only be called once.
+//    Also, in a threaded application, might want to make sure that the generator's
+//    state is stored per thread, and seed the generator once for each thread.
+    srand(time(NULL));
+
+    int total = nFish + nSharks;
+
+    int i = 0; //C90 standard doesn't allow loop var declaration inside loop
+    for(i = 0; i < total; i++)
+    {
+        int x = rand() % GRID_ROWS;
+        int y = rand() % GRID_COLUMNS;
+
+        if(i < nFish){
+            //continue with popluating fish
+            createFishAt(x,y);
+
+        }else{
+            // once all fish done popluate sharks
+            createSharkAt(x,y);
+        }
+
+    }
+
+}
+
+
+/*! \brief Draws the world
+ */
+void drawWorld()
+{
+    int y = 0;
+    for(y = 0; y < GRID_COLUMNS; y++)
+    {
+        int x = 0;
+        for(x = 0; x < GRID_ROWS; x++)
+        {
+            if(world[x][y].pFish != 0) // Check if null
+            {
+                DrawFishAt(world[x][y].pFish->pos);
+            }
+
+            if(world[x][y].pShark != 0) // Check if null
+            {
+                DrawSharkAt(world[x][y].pShark->pos);
+            }
+        }
+    }
+
+}
+
+
+/*! \brief Destories the enity at given grid location
+ *
+ *  Destories the enity at given grid location
+ *  \param x - index into array
+ *  \param y - index into array
+ */
+void cleanWorld(){
+
+    int y = 0;
+    for(y = 0; y < GRID_COLUMNS; y++)
+    {
+        int x = 0;
+        for(x = 0; x < GRID_ROWS; x++)
+        {
+            free(world[x][y].pFish);
+            free(world[x][y].pShark);
+        }
+
+    }
+}
+
 
 
 #endif

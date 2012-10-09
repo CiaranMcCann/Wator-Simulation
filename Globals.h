@@ -13,6 +13,9 @@ float const WindowWidth = 600.0f;
 #define GRID_ROWS  100
 #define GRID_COLUMNS 100
 
+#define N_SHARKS 100
+#define N_FISH 40
+
 int const NumberOfSharks = 10;
 int const NumberOfFish = 10;
 

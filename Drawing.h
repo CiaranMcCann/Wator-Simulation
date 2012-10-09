@@ -114,9 +114,9 @@ void DrawFishAt(GridPosition fishPosition)
 
 	glBegin(GL_QUADS);
 	glColor3f(1., 1., 0.); glVertex3f(xPos, yPos, 1.);
-	glColor3f(1., 1., 0.); glVertex3f( xPos + QuadWidth * 0.5f, yPos, 1.);
-	glColor3f(1., 1., 0.); glVertex3f( xPos + QuadWidth * 0.5f, yPos + QuadHeight * 0.5f, 1.);
-	glColor3f(1., 1., 0.); glVertex3f(xPos,  yPos + QuadHeight * 0.5f, 1.);
+	glColor3f(1., 1., 0.); glVertex3f( xPos + QuadWidth , yPos, 1.);
+	glColor3f(1., 1., 0.); glVertex3f( xPos + QuadWidth, yPos + QuadHeight, 1.);
+	glColor3f(1., 1., 0.); glVertex3f(xPos,  yPos + QuadHeight, 1.);
 	glEnd();
 }
 
