@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 			}
 			else if(xev.type == KeyPress) // Exit on key press
 			{
-                cleanWorld();
+                cleanWorld(); // cleans up heap memory for the world
 				glXMakeCurrent(dpy, None, NULL);
 				glXDestroyContext(dpy, glc);
 				XDestroyWindow(dpy, win);

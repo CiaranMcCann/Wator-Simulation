@@ -41,7 +41,7 @@ void _createAt(int x, int y, int fishFlag)
 
 /*! \brief Destories the enity at given grid location
  *
- *  Destories the enity at given grid location
+ *  Destories the enity at given grid location and frees memory
  *  \param x - index into array
  *  \param y - index into array
  */
@@ -49,6 +49,9 @@ void destoryAt(int x, int y)
 {
     free(world[x][y].pFish);
     free(world[x][y].pShark);
+
+    world[x][y].pFish = 0;
+    world[x][y].pShark = 0;
 }
 
 
@@ -146,8 +149,7 @@ void cleanWorld(){
         int x = 0;
         for(x = 0; x < GRID_ROWS; x++)
         {
-            free(world[x][y].pFish);
-            free(world[x][y].pShark);
+            destoryAt(x,y);
         }
 
     }
