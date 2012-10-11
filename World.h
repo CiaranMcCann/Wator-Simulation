@@ -109,6 +109,47 @@ void populateWorld(int nFish, int nSharks){
 
 }
 
+/*! \ Checks a tile to see if it contains fish or shark
+ *  Checks for nulls squares
+ *  This will only work for fish so may rename to checkTileFish or somesuch
+ *  
+ */
+
+int checkTile(int x, int y)
+{
+    int i = 0;
+
+    if(x < 0 || y < 0 || x > GRID_COLUMNS || y > GRID_ROWS) // Out of bounds check
+        i = 0;
+    else if(world[x][y].pShark == 1 || world[x][y].pFish == 1)
+        i = 0;
+    else
+        i = 1;
+
+     return i;
+}
+
+/*! update
+ */
+
+void update()
+{
+    int y = 0;
+
+    for(y = 0; y < GRID_COLUMNS; y++)
+    {
+        int x = 0;
+        for(x = 0; x < GRID_ROWS; x++)
+        {
+            if(world[x][y].pFish != 0) // Check if null
+            {
+                updateFish(x,y,world[x][y].pFish);
+            }
+        }
+    }
+
+}
+
 
 /*! \brief Draws the world
  */
