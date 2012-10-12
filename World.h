@@ -129,6 +129,33 @@ int checkTile(int x, int y)
      return i;
 }
 
+/*
+ * Checks if there is a shark int a tile
+ * @param int x The x position of the tile
+ * @param int y The y position of the tile
+ * @returns True for shark, false otherwise
+ */
+int checkTileForShark(int x, int y)
+{
+    int i = 0;
+
+    if (x < 0)
+        x = GRID_COLUMNS - 1;
+    else if (x >= GRID_COLUMNS)
+        x = 0;
+
+    if (y < 0)
+        y = GRID_ROWS - 1;
+    else if (y >= GRID_ROWS)
+        y = 0;
+
+    if (world[x][y].pShark) // RF - Will shark pointer be null if there is no shark?
+        return 1; // Return True?
+    else
+        return 0; // Return False?
+
+}
+
 /*! update
  */
 

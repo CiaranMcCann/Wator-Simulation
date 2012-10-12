@@ -35,48 +35,59 @@ Shark * sharkFactory(int x, int y)
        return pShark;
 }
 
-/*
-    void sharkUpdate(Shark * pShark)
-    void move(Shark * pShark)
-    void die(Shark * pShark)
-    void spawn(Shark * pShark)
-*/
 
-/*
-*/
-void sharkUpdate(Shark * pShark)
-{
-	// Move
-	// Spawn
-	// Die
-}
 
 /*
 */
 void sharkMove(Shark * pShark)
 {
-	// Move to an empty space in the grid
-	// Store previous position
+    GridPosition newPos;
+    // Move to an empty space in the grid
+    
 }
 
 /*
 */
 void sharkDie(Shark * pShark)
 {
-	if (pShark->mAge % pShark->mStarveTime == 0)
-	{
-	   // Die
-	}
+    if (pShark->mAge % pShark->mStarveTime == 0)
+    {
+       
+    }
 }
 
 /*
 */
-void sharkSpawn(Shark * pShark)
+void sharkSpawn(Shark * pShark, GridPosition spawnPos)
 {
-	if (pShark->mAge % pShark->mSpawnTime == 0)
-	{
-		// Spawn a new shark in the prvious position
-	}
+    if (pShark->mAge % pShark->mSpawnTime == 0)
+    {
+        // Spawn a new shark in the previous position
+        pShark->mAge = 1;
+    }
+}
+
+/*
+*/
+void sharkUpdate(Shark * pShark)
+{
+    // Make sure not to update twice
+    if (pShark->updated == 1)
+        return;
+
+    // Store the previous position for spawning
+    GridPosition prevPos = pShark->pos;
+	
+    // Move
+	sharkMove(pShark);
+    
+    // Spawn
+	sharkSpawn(pShark, prevPos);
+    
+    // Die
+    sharkDie(pShark);
+
+    pShark->updated = 1;
 }
 
 #endif
