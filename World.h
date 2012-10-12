@@ -115,15 +115,21 @@ void populateWorld(int nFish, int nSharks){
  *  
  */
 
-int checkTile(int x, int y)
+int checkTileForEntity(int x, int y)
 {
     int i = 0;
 
-    if(x < 0 || y < 0 || x > GRID_COLUMNS || y > GRID_ROWS) // Out of bounds check
-        i = 0;
-    else if(world[x][y].pShark == 1 || world[x][y].pFish == 1)
-        i = 0;
-    else
+    if (x < 0) // handle wrap around
+        x = GRID_COLUMNS - 1;
+    else if (x >= GRID_COLUMNS)
+        x = 0;
+
+    if (y < 0)
+        y = GRID_ROWS - 1;
+    else if (y >= GRID_ROWS)
+        y = 0;
+
+    if(world[x][y].pShark || world[x][y].pFish)
         i = 1;
 
      return i;
@@ -159,19 +165,38 @@ int checkTileForShark(int x, int y)
 /*! update
  */
 
-void update()
+void updateWorld()
 {
     int y = 0;
+    int x = 0;
 
     for(y = 0; y < GRID_COLUMNS; y++)
     {
-        int x = 0;
         for(x = 0; x < GRID_ROWS; x++)
         {
             if(world[x][y].pFish != 0) // Check if null
             {
                 updateFish(x,y,world[x][y].pFish);
             }
+
+            if(world[x][y].pShark != 0) // Check if null
+            {
+                //updateShark(x,y,world[x][y].pShark);
+            }
+        }
+    }
+
+    // Reset the updated counter
+    for(y = 0; y < GRID_COLUMNS; y++)
+    {
+        for(x = 0; x < GRID_ROWS; x++)
+        {
+            if(world[x][y].pFish != 0)
+                world[x][y].pFish->updated = 0;
+            
+
+            if(world[x][y].pShark != 0)
+                world[x][y].pShark->updated = 0;
         }
     }
 

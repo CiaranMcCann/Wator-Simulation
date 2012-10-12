@@ -15,5 +15,8 @@ float const WindowWidth = 900.0f;
 
 #define N_SHARKS 100
 #define N_FISH 40
+#define FISH_SPAWNRATE 4
+#define SHARK_SPAWNRATE 6
+#define SHARK_STARVERATE 5
 
 #endif

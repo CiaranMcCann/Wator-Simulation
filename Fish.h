@@ -12,6 +12,8 @@
 typedef struct{
     GridPosition pos;
     int updated;  /*!< Bool flag - To stop a enity been updated twice */
+    int mSpawnCounter;
+
 }Fish;
 
 
@@ -26,6 +28,7 @@ Fish * fishFactory(int x, int y)
        pFish->pos.X = x;
        pFish->pos.Y = y;
        pFish->updated = 0;
+       pFish->mSpawnCounter = 0;
 
        return pFish;
 }
@@ -35,13 +38,34 @@ Fish * fishFactory(int x, int y)
  *  
  */
 
-int moveFish(int x, int y, Fish *fish)
+void moveFish(int x, int y, Fish *fish)
 {
-	fish->pos.X = x;
-	fish->pos.Y = y;
+    // handle wrap around
+    if (x < 0)
+        x = GRID_COLUMNS - 1;
+    else if (x >= GRID_COLUMNS)
+        x = 0;
 
-	return 1;
+    if (y < 0)
+        y = GRID_ROWS - 1;
+    else if (y >= GRID_ROWS)
+        y = 0;
+
+    fish->mSpawnCounter +=1;
+
+    if(fish->mSpawnCounter==FISH_SPAWNRATE)
+    {
+        fish->mSpawnCounter=0;
+        createFishAt(x,y);
+    }
+    else
+    {
+    	fish->pos.X = x;
+    	fish->pos.Y = y;
+        // Updated fish age
+    }
 }
+
 
 
 /*! \ Checks the surrounding grid positions for a free tile
@@ -52,58 +76,54 @@ int moveFish(int x, int y, Fish *fish)
 
 void updateFish(int x, int y, Fish *fish)
 {
+
+    fish->updated = 1;
 	// Make sure updated is set to 0 
-    fish->updated = 0; 
-    char* direction;
+    char direction[4];
     int i = 0;
 
     // Add all available directions to a char array
     // Will try and refactor this
-    if(checkTile(x, y+1) == 0){
+    if(checkTileForEntity(x, y+1) == 0){
     	direction[i] = 'N';
     	i++;
     } 
     
-    if(checkTile(x, y-1) == 0){
+    if(checkTileForEntity(x, y-1) == 0){
     	direction[i] = 'S';
     	i++;
     }
 
-    if (checkTile(x+1, y) == 0){
+    if (checkTileForEntity(x+1, y) == 0){
     	direction[i] = 'E';
     	i++;
     }
 
 
-    if (checkTile(x+1, y) == 0){
+    if (checkTileForEntity(x-1, y) == 0){
     	direction[i] = 'W';
     	i++;
     }
 
-    // If  there are no available moves set updated to 1 and skip a move
-    if (i==0)
-    	fish->updated = 1;
-
-    if(fish->updated==0) // I
+    if(i>0) // I
     {
         i = rand() % i;
 
         switch( direction[i] )
         {
             case 'N': // North
-                    fish->updated = moveFish(x, y+1, fish);
+                    moveFish(x, y+1, fish);
                 break;
             case 'S': // South
-                    fish->updated = moveFish(x, y-1, fish);
+                    moveFish(x, y-1, fish);
                 break;
             case 'E': // East
-                    fish->updated = moveFish(x+1, y, fish);
+                    moveFish(x+1, y, fish);
                 break;
             case 'W': // West
-                    fish->updated = moveFish(x-1, y, fish);
+                     moveFish(x-1, y, fish);
                 break;
             default :
-            		fish->updated = 1;
             	break;
         }
             
