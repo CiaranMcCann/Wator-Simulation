@@ -14,6 +14,7 @@ typedef struct{
     int updated;  /*!< Bool flag - To stop a enity been updated twice */
     int mSpawnCounter;
     int mStarveCounter;
+    int mDead;
 }Shark;
 
 
@@ -30,6 +31,7 @@ Shark * sharkFactory(int x, int y)
        pShark->updated = 0;
        pShark->mStarveCounter = 0;
        pShark->mSpawnCounter = 0;
+       pShark->mDead = 0;
 
        return pShark;
 }
@@ -59,7 +61,7 @@ void sharkMove(int x, int y, Shark * pShark)
     {
     	pShark->mSpawnCounter = 0;
     	createSharkAt(x, y);
-    	printf("SHARK LOVE!!!\n");
+
     }
     else
     {
@@ -157,7 +159,7 @@ void sharkDie(Shark * pShark)
 {
     if (pShark->mStarveCounter == SHARK_STARVERATE)
     {
-    	destroyAt(pShark->pos.X, pShark->pos.Y);
+    	pShark->mDead = 1;
     }
 }
 
@@ -169,32 +171,33 @@ void updateShark(int x, int y, Shark * pShark)
     // Make sure not to update twice
     if (pShark->updated == 1)
         return;
-	
+
+    
 	if (sharkHunt(pShark) == 0)
 	{
 	    // Move
 	    char direction[4];
 		int i = 0;
 
-	    if (checkTileForEntity(x, y+1) == 1)
+	    if (checkTileForEntity(x, y+1) == 0)
 		{
 			direction[i] = 'N';
 			i++;
 		}
 
-		if (checkTileForEntity(x, y-1) == 1)
+		if (checkTileForEntity(x, y-1) == 0)
 		{
 			direction[i] = 'S';
 			i++;
 		}
 
-		if (checkTileForEntity(x+1, y) == 1)
+		if (checkTileForEntity(x+1, y) == 0)
 		{
 			direction[i] == 'E';
 			i++;
 		}
 
-		if (checkTileForEntity(x-1, y) == 1)
+		if (checkTileForEntity(x-1, y) == 0)
 		{
 			direction[i] == 'W';
 			i++;
@@ -223,8 +226,9 @@ void updateShark(int x, int y, Shark * pShark)
 			}// end switch
 		}// end if
 	}
-    
-    // Die
+
+
+	// Die
     sharkDie(pShark);
 
     pShark->updated = 1;

@@ -36,7 +36,6 @@ void _createAt(int x, int y, int fishFlag)
         else
         {
             world[x][y].pShark = sharkFactory(x,y);
-            printf("Shark did the nasty!\n");
         }
     }
 }
@@ -226,7 +225,15 @@ void updateWorld()
             
 
             if(world[x][y].pShark != 0)
+            {
                 world[x][y].pShark->updated = 0;
+
+                // Check if the shark is dead
+                if (world[x][y].pShark->mDead)
+                {
+                    destroyAt(x, y);
+                }
+            }
         }
     }
 

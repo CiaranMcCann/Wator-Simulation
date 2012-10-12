@@ -6,8 +6,8 @@
  *  A file which defines the variables shared throughout the Wator simulation.
  */
 
-float const WindowHeight = 900.0f;
-float const WindowWidth = 900.0f;
+float const WindowHeight = 600.0f;
+float const WindowWidth = 600.0f;
 
 // NOTE: const in C means read-only, the value can still actually change
 #define GRID_ROWS  100
@@ -16,7 +16,7 @@ float const WindowWidth = 900.0f;
 #define N_SHARKS 20
 #define N_FISH 10
 #define FISH_SPAWNRATE 4
-#define SHARK_SPAWNRATE 6
-#define SHARK_STARVERATE 5
+#define SHARK_SPAWNRATE 5
+#define SHARK_STARVERATE 6
 
 #endif
