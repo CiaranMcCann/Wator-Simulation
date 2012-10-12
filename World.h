@@ -32,7 +32,9 @@ void _createAt(int x, int y, int fishFlag)
         if(fishFlag)
         {
               world[x][y].pFish = fishFactory(x,y);
-        }else{
+        }
+        else
+        {
             world[x][y].pShark = sharkFactory(x,y);
         }
     }
@@ -208,9 +210,9 @@ void updateWorld()
 void drawWorld()
 {
     int y = 0;
+    int x = 0;
     for(y = 0; y < GRID_COLUMNS; y++)
     {
-        int x = 0;
         for(x = 0; x < GRID_ROWS; x++)
         {
             if(world[x][y].pFish != 0) // Check if null

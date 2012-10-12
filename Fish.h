@@ -2,6 +2,7 @@
 #define FISH_H
 
 #include "Globals.h"
+#include "World.h"
 #include "GridPosition.h"
 
 
