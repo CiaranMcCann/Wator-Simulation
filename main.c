@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 			// 	XCloseDisplay(dpy);
 			// 	exit(0);
 			// }
-			if (count == 10000000)
+			if (count == 100000000)
 			{
 				//printf("Test");
 				updateWorld();

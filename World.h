@@ -36,6 +36,7 @@ void _createAt(int x, int y, int fishFlag)
         else
         {
             world[x][y].pShark = sharkFactory(x,y);
+            printf("Shark did the nasty!\n");
         }
     }
 }
@@ -47,7 +48,7 @@ void _createAt(int x, int y, int fishFlag)
  *  \param x - index into array
  *  \param y - index into array
  */
-void destoryAt(int x, int y)
+void destroyAt(int x, int y)
 {
     free(world[x][y].pFish);
     free(world[x][y].pShark);
@@ -157,10 +158,37 @@ int checkTileForShark(int x, int y)
     else if (y >= GRID_ROWS)
         y = 0;
 
-    if (world[x][y].pShark) // RF - Will shark pointer be null if there is no shark?
-        return 1; // Return True?
+    if (world[x][y].pShark)
+        return 1;
     else
-        return 0; // Return False?
+        return 0;
+
+}
+
+/*
+ * Checks if there is a shark int a tile
+ * @param int x The x position of the tile
+ * @param int y The y position of the tile
+ * @returns True for shark, false otherwise
+ */
+int checkTileForFish(int x, int y)
+{
+    int i = 0;
+
+    if (x < 0)
+        x = GRID_COLUMNS - 1;
+    else if (x >= GRID_COLUMNS)
+        x = 0;
+
+    if (y < 0)
+        y = GRID_ROWS - 1;
+    else if (y >= GRID_ROWS)
+        y = 0;
+
+    if (world[x][y].pFish)
+        return 1;
+    else
+        return 0;
 
 }
 
@@ -183,7 +211,7 @@ void updateWorld()
 
             if(world[x][y].pShark != 0) // Check if null
             {
-                //updateShark(x,y,world[x][y].pShark);
+                updateShark(x,y,world[x][y].pShark);
             }
         }
     }
@@ -244,7 +272,7 @@ void cleanWorld(){
         int x = 0;
         for(x = 0; x < GRID_ROWS; x++)
         {
-            destoryAt(x,y);
+            destroyAt(x,y);
         }
 
     }

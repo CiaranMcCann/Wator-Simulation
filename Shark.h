@@ -2,6 +2,7 @@
 #define SHARK_H
 
 #include "Globals.h"
+#include "World.h"
 #include "GridPosition.h"
 
 /*! \brief A structure to hold the data memebers of Shark.
@@ -11,9 +12,8 @@
 typedef struct{
     GridPosition pos;
     int updated;  /*!< Bool flag - To stop a enity been updated twice */
-    int mSpawnTime;
-    int mStarveTime;
-    int mAge;
+    int mSpawnCounter;
+    int mStarveCounter;
 }Shark;
 
 
@@ -28,9 +28,8 @@ Shark * sharkFactory(int x, int y)
        pShark->pos.X = x;
        pShark->pos.Y = y;
        pShark->updated = 0;
-       pShark->mAge = 1;
-       pShark->mStarveTime = 4;
-       pShark->mSpawnTime = 5;
+       pShark->mStarveCounter = 0;
+       pShark->mSpawnCounter = 0;
 
        return pShark;
 }
@@ -39,50 +38,191 @@ Shark * sharkFactory(int x, int y)
 
 /*
 */
-void sharkMove(Shark * pShark)
+void sharkMove(int x, int y, Shark * pShark)
 {
-    GridPosition newPos;
+    pShark->mSpawnCounter += 1;
+    pShark->mStarveCounter += 1;
+
+    // handle wrap around
+    if (x < 0)
+        x = GRID_COLUMNS - 1;
+    else if (x >= GRID_COLUMNS)
+        x = 0;
+
+    if (y < 0)
+        y = GRID_ROWS - 1;
+    else if (y >= GRID_ROWS)
+        y = 0;
+
+
+    if (pShark->mSpawnCounter == SHARK_SPAWNRATE)
+    {
+    	pShark->mSpawnCounter = 0;
+    	createSharkAt(x, y);
+    	printf("SHARK LOVE!!!\n");
+    }
+    else
+    {
+    	pShark->pos.X = x;
+    	pShark->pos.Y = y;
+    }
+
     // Move to an empty space in the grid
     
+}
+
+int sharkHunt(Shark * pShark)
+{
+	char direction[4];
+	int i = 0;
+
+	int x = pShark->pos.X;
+	int y = pShark->pos.Y;
+
+	if (checkTileForFish(x, y+1) == 1)
+	{
+		direction[i] = 'N';
+		i++;
+	}
+
+	if (checkTileForFish(x, y-1) == 1)
+	{
+		direction[i] = 'S';
+		i++;
+	}
+
+	if (checkTileForFish(x+1, y) == 1)
+	{
+		direction[i] == 'E';
+		i++;
+	}
+
+	if (checkTileForFish(x-1, y) == 1)
+	{
+		direction[i] == 'W';
+		i++;
+	}
+
+	if ( i > 0 )
+	{
+		i = rand() % i;
+
+		switch( direction[i] )
+		{
+			case 'N':
+				sharkEat(x, y+1, pShark);
+				break;
+			case 'S':
+				sharkEat(x, y-1, pShark);
+				break;
+			case 'E':
+				sharkEat(x+1, y, pShark);
+				break;
+			case 'W':
+				sharkEat(x-1, y, pShark);
+				break;
+			default:
+				break;
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
+void sharkEat(int x, int y, Shark * pShark)
+{
+	pShark->mStarveCounter = 0;
+
+	sharkMove(x, y, pShark);
+
+	// handle wrap around
+    if (x < 0)
+        x = GRID_COLUMNS - 1;
+    else if (x >= GRID_COLUMNS)
+        x = 0;
+
+    if (y < 0)
+        y = GRID_ROWS - 1;
+    else if (y >= GRID_ROWS)
+        y = 0;
+
+	destroyAt(x, y);
 }
 
 /*
 */
 void sharkDie(Shark * pShark)
 {
-    if (pShark->mAge % pShark->mStarveTime == 0)
+    if (pShark->mStarveCounter == SHARK_STARVERATE)
     {
-       
+    	destroyAt(pShark->pos.X, pShark->pos.Y);
     }
 }
 
-/*
-*/
-void sharkSpawn(Shark * pShark, GridPosition spawnPos)
-{
-    if (pShark->mAge % pShark->mSpawnTime == 0)
-    {
-        // Spawn a new shark in the previous position
-        pShark->mAge = 1;
-    }
-}
 
 /*
 */
-void sharkUpdate(Shark * pShark)
+void updateShark(int x, int y, Shark * pShark)
 {
     // Make sure not to update twice
     if (pShark->updated == 1)
         return;
-
-    // Store the previous position for spawning
-    GridPosition prevPos = pShark->pos;
 	
-    // Move
-	sharkMove(pShark);
-    
-    // Spawn
-	sharkSpawn(pShark, prevPos);
+	if (sharkHunt(pShark) == 0)
+	{
+	    // Move
+	    char direction[4];
+		int i = 0;
+
+	    if (checkTileForEntity(x, y+1) == 1)
+		{
+			direction[i] = 'N';
+			i++;
+		}
+
+		if (checkTileForEntity(x, y-1) == 1)
+		{
+			direction[i] = 'S';
+			i++;
+		}
+
+		if (checkTileForEntity(x+1, y) == 1)
+		{
+			direction[i] == 'E';
+			i++;
+		}
+
+		if (checkTileForEntity(x-1, y) == 1)
+		{
+			direction[i] == 'W';
+			i++;
+		}
+
+		if ( i > 0 )
+		{
+			i = rand() % i;
+
+			switch( direction[i] )
+			{
+				case 'N':
+					sharkMove(x, y+1, pShark);
+					break;
+				case 'S':
+					sharkMove(x, y-1, pShark);
+					break;
+				case 'E':
+					sharkMove(x+1, y, pShark);
+					break;
+				case 'W':
+					sharkMove(x-1, y, pShark);
+					break;
+				default:
+					break;
+			}// end switch
+		}// end if
+	}
     
     // Die
     sharkDie(pShark);
