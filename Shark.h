@@ -15,6 +15,7 @@ typedef struct{
     int mSpawnCounter;
     int mStarveCounter;
     int mDead;
+    int mFed;
 }Shark;
 
 
@@ -32,36 +33,24 @@ Shark * sharkFactory(int x, int y)
        pShark->mStarveCounter = 0;
        pShark->mSpawnCounter = 0;
        pShark->mDead = 0;
+       pShark->mFed = 0;
 
        return pShark;
 }
 
-
-
-/*
-*/
 void sharkMove(int x, int y, Shark * pShark)
 {
     pShark->mSpawnCounter += 1;
     pShark->mStarveCounter += 1;
 
-    // handle wrap around
-    if (x < 0)
-        x = GRID_COLUMNS - 1;
-    else if (x >= GRID_COLUMNS)
-        x = 0;
-
-    if (y < 0)
-        y = GRID_ROWS - 1;
-    else if (y >= GRID_ROWS)
-        y = 0;
-
-
-    if (pShark->mSpawnCounter == SHARK_SPAWNRATE)
+	if (pShark->mStarveCounter == SHARK_STARVERATE)
     {
-    	pShark->mSpawnCounter = 0;
+    	pShark->mDead = 1;
+    }
+    else if (pShark->mSpawnCounter == SHARK_SPAWNRATE)
+    {
     	createSharkAt(x, y);
-
+    	pShark->mSpawnCounter = 0;
     }
     else
     {
@@ -69,169 +58,141 @@ void sharkMove(int x, int y, Shark * pShark)
     	pShark->pos.Y = y;
     }
 
-    // Move to an empty space in the grid
-    
 }
 
-int sharkHunt(Shark * pShark)
+void sharkHunt(Shark * pShark)
 {
-	char direction[4];
+	char dir[4];
 	int i = 0;
 
 	int x = pShark->pos.X;
 	int y = pShark->pos.Y;
 
-	if (checkTileForFish(x, y+1) == 1)
+	if (checkTileForFish(x, y + 1) == 1)
 	{
-		direction[i] = 'N';
-		i++;
+		dir[i] = 'N';
+		++i;
+	}
+	if (checkTileForFish(x, y - 1) == 1)
+	{
+		dir[i] = 'S';
+		++i;
+	}
+	if (checkTileForFish(x + 1, y) == 1)
+	{
+		dir[i] = 'E';
+		++i;
+	}
+	if (checkTileForFish(x - 1, y) == 1)
+	{
+		dir[i] = 'W';
+		++i;
 	}
 
-	if (checkTileForFish(x, y-1) == 1)
-	{
-		direction[i] = 'S';
-		i++;
-	}
 
-	if (checkTileForFish(x+1, y) == 1)
-	{
-		direction[i] == 'E';
-		i++;
-	}
-
-	if (checkTileForFish(x-1, y) == 1)
-	{
-		direction[i] == 'W';
-		i++;
-	}
-
-	if ( i > 0 )
+	if (i > 0)
 	{
 		i = rand() % i;
 
-		switch( direction[i] )
-		{
-			case 'N':
-				sharkEat(x, y+1, pShark);
-				break;
-			case 'S':
-				sharkEat(x, y-1, pShark);
-				break;
-			case 'E':
-				sharkEat(x+1, y, pShark);
-				break;
-			case 'W':
-				sharkEat(x-1, y, pShark);
-				break;
-			default:
-				break;
-		}
+		switch( dir[i] )
+        	{
+	        	case 'N': // North
+        			y+=1;
+	                break;
+	            case 'S': // South
+            		y-=1;
+	                break;
+	            case 'E': // East
+	            	x+=1;
+	                break;
+	            case 'W': // West
+	            	x-=1;
+	                break;
+	            default :
+	            	break;
+        	}// end switch
 
-		return 1;
+		manageWrapAround(&x, &y);
+		destroyAt(x, y);
+		sharkMove(x, y, pShark);
+		pShark->mFed = 1;
 	}
 
-	return 0;
-}
-
-void sharkEat(int x, int y, Shark * pShark)
-{
-	pShark->mStarveCounter = 0;
-
-	sharkMove(x, y, pShark);
-
-	// handle wrap around
-    if (x < 0)
-        x = GRID_COLUMNS - 1;
-    else if (x >= GRID_COLUMNS)
-        x = 0;
-
-    if (y < 0)
-        y = GRID_ROWS - 1;
-    else if (y >= GRID_ROWS)
-        y = 0;
-
-	destroyAt(x, y);
-}
-
-/*
-*/
-void sharkDie(Shark * pShark)
-{
-    if (pShark->mStarveCounter == SHARK_STARVERATE)
-    {
-    	pShark->mDead = 1;
-    }
 }
 
 
-/*
-*/
 void updateShark(int x, int y, Shark * pShark)
 {
     // Make sure not to update twice
     if (pShark->updated == 1)
         return;
 
-    
-	if (sharkHunt(pShark) == 0)
-	{
-	    // Move
-	    char direction[4];
+    sharkHunt(pShark);
+
+    if (pShark->mFed == 0)
+    {
+    	char dir[4];
 		int i = 0;
 
-	    if (checkTileForEntity(x, y+1) == 0)
+
+		if (checkTileForShark(x, y + 1) == 0)
 		{
-			direction[i] = 'N';
-			i++;
+			dir[i] = 'N';
+			++i;
+		}
+		if (checkTileForShark(x, y - 1) == 0)
+		{
+			dir[i] = 'S';
+			++i;
+		}
+		if (checkTileForShark(x + 1, y) == 0)
+		{
+			dir[i] = 'E';
+			++i;
+		}
+		if (checkTileForShark(x - 1, y) == 0)
+		{
+			dir[i] = 'W';
+			++i;
 		}
 
-		if (checkTileForEntity(x, y-1) == 0)
-		{
-			direction[i] = 'S';
-			i++;
-		}
-
-		if (checkTileForEntity(x+1, y) == 0)
-		{
-			direction[i] == 'E';
-			i++;
-		}
-
-		if (checkTileForEntity(x-1, y) == 0)
-		{
-			direction[i] == 'W';
-			i++;
-		}
-
-		if ( i > 0 )
+		if (i > 0)
 		{
 			i = rand() % i;
+			x = pShark->pos.X;
+			y = pShark->pos.Y;
 
-			switch( direction[i] )
-			{
-				case 'N':
-					sharkMove(x, y+1, pShark);
-					break;
-				case 'S':
-					sharkMove(x, y-1, pShark);
-					break;
-				case 'E':
-					sharkMove(x+1, y, pShark);
-					break;
-				case 'W':
-					sharkMove(x-1, y, pShark);
-					break;
-				default:
-					break;
-			}// end switch
-		}// end if
-	}
+			switch( dir[i] )
+        	{
+	        	case 'N': // North
+        			y+=1;
+	                break;
+	            case 'S': // South
+            		y-=1;
+	                break;
+	            case 'E': // East
+	            	x+=1;
+	                break;
+	            case 'W': // West
+	            	x-=1;
+	                break;
+	            default :
+	            	break;
+        	}// end switch
 
+        	manageWrapAround(&x, &y);
+			sharkMove(x, y, pShark);
 
-	// Die
-    sharkDie(pShark);
+			
+		}// end if i
+    }// end if mFed
+    else
+    {
+    	pShark->mStarveCounter = 0;
+    }
 
     pShark->updated = 1;
+    pShark->mFed = 0;
 }
 
 #endif

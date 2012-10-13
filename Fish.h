@@ -30,7 +30,6 @@ Fish * fishFactory(int x, int y)
        pFish->pos.Y = y;
        pFish->updated = 0;
        pFish->mSpawnCounter = 0;
-
        return pFish;
 }
 
@@ -77,6 +76,9 @@ void moveFish(int x, int y, Fish *fish)
 
 void updateFish(int x, int y, Fish *fish)
 {
+
+    if (fish->updated == 1)
+        return;
 
     fish->updated = 1;
 	// Make sure updated is set to 0 

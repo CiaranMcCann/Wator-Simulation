@@ -21,6 +21,24 @@ typedef struct {
 GirdObj world[GRID_ROWS][GRID_COLUMNS ];
 
 
+/*! \brief Handles wrap around
+ *
+ *  \returns A grid position in the bounds of the world
+*/
+void manageWrapAround(int * x, int * y)
+{
+    if (*x < 0)
+        *x = GRID_COLUMNS - 1;
+    else if (*x >= GRID_COLUMNS)
+        *x = 0;
+
+    if (*y < 0)
+        *y = GRID_ROWS - 1;
+    else if (*y >= GRID_ROWS)
+        *y = 0;
+}
+
+
 /*! \brief Creates either a fish or a shark.
  *
  * Function only really exists because as a user I hate int flags
@@ -49,11 +67,17 @@ void _createAt(int x, int y, int fishFlag)
  */
 void destroyAt(int x, int y)
 {
+    // printf("destroyAt\n");
+    // printf("%d, ", x);
+    // printf("%d\n", y);
+
     free(world[x][y].pFish);
     free(world[x][y].pShark);
 
     world[x][y].pFish = 0;
     world[x][y].pShark = 0;
+
+    // printf("destroyAt success\n");
 }
 
 
@@ -145,51 +169,31 @@ int checkTileForEntity(int x, int y)
  */
 int checkTileForShark(int x, int y)
 {
-    int i = 0;
-
-    if (x < 0)
-        x = GRID_COLUMNS - 1;
-    else if (x >= GRID_COLUMNS)
-        x = 0;
-
-    if (y < 0)
-        y = GRID_ROWS - 1;
-    else if (y >= GRID_ROWS)
-        y = 0;
+    manageWrapAround(&x, &y);
 
     if (world[x][y].pShark)
         return 1;
     else
         return 0;
-
 }
 
 /*
  * Checks if there is a shark int a tile
  * @param int x The x position of the tile
  * @param int y The y position of the tile
- * @returns True for shark, false otherwise
+ * @returns The pointer to the fish in the tile or null
  */
 int checkTileForFish(int x, int y)
 {
-    int i = 0;
-
-    if (x < 0)
-        x = GRID_COLUMNS - 1;
-    else if (x >= GRID_COLUMNS)
-        x = 0;
-
-    if (y < 0)
-        y = GRID_ROWS - 1;
-    else if (y >= GRID_ROWS)
-        y = 0;
+    manageWrapAround(&x, &y);
 
     if (world[x][y].pFish)
         return 1;
     else
         return 0;
-
 }
+
+
 
 /*! update
  */
