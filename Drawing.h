@@ -120,19 +120,6 @@ void DrawFishAt(GridPosition fishPosition)
 	glEnd();
 }
 
-void DrawBothAt(GridPosition position)
-{
-	float xPos = (2.0f * (float)position.X / (float)GRID_COLUMNS ) - 1.0f;
-	float yPos = (2.0f * (float)position.Y / (float)GRID_ROWS) - 1.0f;
-
-	glBegin(GL_QUADS);
-	glColor3f(1., 1., 1.); glVertex3f(xPos, yPos, 1.);
-	glColor3f(1., 1., 1.); glVertex3f( xPos + QuadWidth, yPos, 1.);
-	glColor3f(1., 1., 1.); glVertex3f( xPos + QuadWidth, yPos + QuadHeight, 1.);
-	glColor3f(1., 1., 1.); glVertex3f(xPos,  yPos + QuadHeight, 1.);
-	glEnd();
-}
-
 /*! \brief Draws the background.
  *
  *  Fills the background of the window with black.

@@ -287,21 +287,13 @@ void drawWorld()
 	    }
 	    else
 	    {
-		    if(world[x][y].pFish != 0) // Check if null
+		    if(world[x][y].pFish != 0) 
 		    {
-			    //~ GridPosition a;
-			    //~ a.X = x;
-			    //~ a.Y = y;
-			    //~ DrawBothAt(a);
 			DrawFishAt(world[x][y].pFish->pos);
 		    }
 
-		    if(world[x][y].pShark != 0) // Check if null
+		    if(world[x][y].pShark != 0) 
 		    {
-			    //~ GridPosition a;
-			    //~ a.X = x;
-			    //~ a.Y = y;
-			    //~ DrawBothAt(a);
 			DrawSharkAt(world[x][y].pShark->pos);
 		    }
 	    }
