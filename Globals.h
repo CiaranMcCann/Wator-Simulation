@@ -13,10 +13,10 @@ float const WindowWidth = 800.0f;
 #define GRID_ROWS  100
 #define GRID_COLUMNS 100
 
-#define N_SHARKS 100
-#define N_FISH 500
-#define FISH_SPAWNRATE 4
-#define SHARK_SPAWNRATE 8
+#define N_SHARKS 20
+#define N_FISH 100
+#define FISH_SPAWNRATE 3
+#define SHARK_SPAWNRATE 7
 #define SHARK_STARVERATE 6
 
 #endif

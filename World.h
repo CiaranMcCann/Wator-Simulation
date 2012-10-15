@@ -67,9 +67,9 @@ void _createAt(int x, int y, int fishFlag)
  */
 void destroyAt(int x, int y)
 {
-    // printf("destroyAt\n");
-    // printf("%d, ", x);
-    // printf("%d\n", y);
+    //printf("destroyAt\n");
+    //printf("%d, ", x);
+    //printf("%d\n", y);
 
     free(world[x][y].pFish);
     free(world[x][y].pShark);
@@ -77,7 +77,8 @@ void destroyAt(int x, int y)
     world[x][y].pFish = 0;
     world[x][y].pShark = 0;
 
-    // printf("destroyAt success\n");
+    //printf("destroyAt success\n");
+
 }
 
 
@@ -187,7 +188,7 @@ int checkTileForFish(int x, int y)
 {
     manageWrapAround(&x, &y);
 
-    if (world[x][y].pFish)
+    if (world[x][y].pFish !=0)
         return 1;
     else
         return 0;
@@ -209,12 +210,12 @@ void updateWorld()
         {
             if(world[x][y].pFish != 0) // Check if null
             {
-                updateFish(x,y,world[x][y].pFish);
+                updateFish(x, y, world[x][y].pFish);
             }
 
             if(world[x][y].pShark != 0) // Check if null
             {
-                updateShark(x,y,world[x][y].pShark);
+                updateShark(x, y, world[x][y].pShark);
             }
         }
     }
