@@ -162,6 +162,7 @@ void updateShark(int x, int y, Shark * pShark)
 			x = pShark->pos.X;
 			y = pShark->pos.Y;
 
+
 			switch( dir[i] )
         	{
 	        	case 'N': // North
