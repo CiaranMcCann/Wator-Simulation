@@ -40,17 +40,6 @@ Fish * fishFactory(int x, int y)
 
 void moveFish(int x, int y, Fish *fish)
 {
-    // handle wrap around
-    if (x < 0)
-        x = GRID_COLUMNS - 1;
-    else if (x >= GRID_COLUMNS)
-        x = 0;
-
-    if (y < 0)
-        y = GRID_ROWS - 1;
-    else if (y >= GRID_ROWS)
-        y = 0;
-
     fish->mSpawnCounter +=1;
 
     if(fish->mSpawnCounter==FISH_SPAWNRATE)
@@ -74,13 +63,14 @@ void moveFish(int x, int y, Fish *fish)
  *  But I decided to 
  */
 
-void updateFish(int x, int y, Fish *fish)
+void updateFish(int x, int y, Fish *pFish)
 {
 
-    if (fish->updated == 1)
+    if (pFish->updated == 1)
         return;
 
-    fish->updated = 1;
+    
+
 	// Make sure updated is set to 0 
     char direction[4];
     int i = 0;
@@ -111,25 +101,31 @@ void updateFish(int x, int y, Fish *fish)
     if(i>0) // I
     {
         i = rand() % i;
+        x = pFish->pos.X;
+        y = pFish->pos.Y;
+
 
         switch( direction[i] )
         {
-            case 'N': // North
-                    moveFish(x, y+1, fish);
-                break;
-            case 'S': // South
-                    moveFish(x, y-1, fish);
-                break;
-            case 'E': // East
-                    moveFish(x+1, y, fish);
-                break;
-            case 'W': // West
-                     moveFish(x-1, y, fish);
-                break;
-            default :
-            	break;
-        }
-            
+                case 'N': // North
+                    y+=1;
+                    break;
+                case 'S': // South
+                    y-=1;
+                    break;
+                case 'E': // East
+                    x+=1;
+                    break;
+                case 'W': // West
+                    x-=1;
+                    break;
+                default :
+                    break;
+        }// end switch
+
+        manageWrapAround(&x, &y);
+        moveFish(x, y, pFish);
+                
     }
 
 
