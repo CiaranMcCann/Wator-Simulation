@@ -8,8 +8,8 @@
  *  A simple structure which defines a position in a 2D coordinate system.
  */
 typedef struct{
-	float X;	/*!< The column number of the position. */
-	float Y;	/*!< The row number of the position. */
+	int X;	/*!< The column number of the position. */
+	int Y;	/*!< The row number of the position. */
 }GridPosition;
 
 #endif

@@ -69,7 +69,7 @@ int InitializeOpenGL()
 
 	// Display window and set name.
 	XMapWindow(dpy, win);
-	XStoreName(dpy, win, "VERY SIMPLE APPLICATION");
+	XStoreName(dpy, win, "Wator Simulation");
 
 	// Create the GL context and bind it to the window.
 	glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
@@ -117,6 +117,19 @@ void DrawFishAt(GridPosition fishPosition)
 	glColor3f(1., 1., 0.); glVertex3f( xPos + QuadWidth * 0.5f , yPos, 1.);
 	glColor3f(1., 1., 0.); glVertex3f( xPos + QuadWidth * 0.5f , yPos + QuadHeight * 0.5f , 1.);
 	glColor3f(1., 1., 0.); glVertex3f(xPos,  yPos + QuadHeight * 0.5f , 1.);
+	glEnd();
+}
+
+void DrawBothAt(GridPosition position)
+{
+	float xPos = (2.0f * (float)position.X / (float)GRID_COLUMNS ) - 1.0f;
+	float yPos = (2.0f * (float)position.Y / (float)GRID_ROWS) - 1.0f;
+
+	glBegin(GL_QUADS);
+	glColor3f(1., 1., 1.); glVertex3f(xPos, yPos, 1.);
+	glColor3f(1., 1., 1.); glVertex3f( xPos + QuadWidth, yPos, 1.);
+	glColor3f(1., 1., 1.); glVertex3f( xPos + QuadWidth, yPos + QuadHeight, 1.);
+	glColor3f(1., 1., 1.); glVertex3f(xPos,  yPos + QuadHeight, 1.);
 	glEnd();
 }
 
