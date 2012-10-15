@@ -279,23 +279,15 @@ void drawWorld()
     for(x = 0; x < GRID_COLUMNS; x++)
     {
         for(y = 0; y < GRID_ROWS; y++)
-        {         
-	    
-	    if(world[x][y].pShark != 0 && world[x][y].pFish != 0)
+        {
+	    if(world[x][y].pFish != 0) 
 	    {
-		DrawBothAt(world[x][y].pShark->pos);
+		DrawFishAt(world[x][y].pFish->pos);
 	    }
-	    else
-	    {
-		    if(world[x][y].pFish != 0) 
-		    {
-			DrawFishAt(world[x][y].pFish->pos);
-		    }
 
-		    if(world[x][y].pShark != 0) 
-		    {
-			DrawSharkAt(world[x][y].pShark->pos);
-		    }
+	    if(world[x][y].pShark != 0) 
+	    {
+		DrawSharkAt(world[x][y].pShark->pos);
 	    }
         }
     }
