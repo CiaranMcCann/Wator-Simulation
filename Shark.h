@@ -29,7 +29,7 @@ Shark * sharkFactory(int x, int y)
        Shark * pShark =  malloc(sizeof(Shark));
        pShark->pos.X = x;
        pShark->pos.Y = y;
-       pShark->updated = 0;
+       pShark->updated = 1;
        pShark->mStarveCounter = 0;
        pShark->mSpawnCounter = 0;
        pShark->mDead = 0;
@@ -54,10 +54,13 @@ void sharkMove(int x, int y, Shark * pShark)
     }
     else
     {
+	GridPosition newPosition;
+	newPosition.X = x;
+	newPosition.Y = y;
+	moveSharkPointerTo(newPosition, pShark);
     	pShark->pos.X = x;
     	pShark->pos.Y = y;
     }
-
 }
 
 void sharkHunt(Shark * pShark)

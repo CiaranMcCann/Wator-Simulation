@@ -69,7 +69,7 @@ int InitializeOpenGL()
 
 	// Display window and set name.
 	XMapWindow(dpy, win);
-	XStoreName(dpy, win, "VERY SIMPLE APPLICATION");
+	XStoreName(dpy, win, "Wator Simulation");
 
 	// Create the GL context and bind it to the window.
 	glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);

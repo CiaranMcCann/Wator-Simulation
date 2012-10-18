@@ -58,6 +58,31 @@ void _createAt(int x, int y, int fishFlag)
     }
 }
 
+/*! \brief Moves the fish pointer within the grid.
+ *
+ *  Moves the fish pointer within the grid.
+ *  Performs no bounds checking.
+ *  \param newPos - The grid position to move to.
+ *  \param pFish - The fish to move.
+ */
+void moveFishPointerTo(GridPosition newPos, Fish* pFish)
+{
+	world[pFish->pos.X][pFish->pos.Y].pFish = 0;
+	world[newPos.X][newPos.Y].pFish = pFish;
+}
+
+/*! \brief Moves the shark pointer within the grid.
+ *
+ *  Moves the shark pointer within the grid.
+ *  Performs no bounds checking.
+ *  \param newPos - The grid position to move to.
+ *  \param pShark - The shark to move.
+ */
+void moveSharkPointerTo(GridPosition newPos, Shark *pShark)
+{
+	world[pShark->pos.X][pShark->pos.Y].pShark = 0;
+	world[newPos.X][newPos.Y].pShark = pShark;
+}
 
 /*! \brief Destories the enity at given grid location
  *
@@ -172,7 +197,7 @@ int checkTileForShark(int x, int y)
 {
     manageWrapAround(&x, &y);
 
-    if (world[x][y].pShark)
+    if (world[x][y].pShark !=0)
         return 1;
     else
         return 0;
@@ -204,9 +229,9 @@ void updateWorld()
     int y = 0;
     int x = 0;
 
-    for(y = 0; y < GRID_COLUMNS; y++)
+    for(x = 0; x < GRID_COLUMNS; x++)
     {
-        for(x = 0; x < GRID_ROWS; x++)
+        for(y = 0; y < GRID_ROWS; y++)
         {
             if(world[x][y].pFish != 0) // Check if null
             {
@@ -221,9 +246,9 @@ void updateWorld()
     }
 
     // Reset the updated counter
-    for(y = 0; y < GRID_COLUMNS; y++)
+    for(x= 0; x < GRID_COLUMNS; x++)
     {
-        for(x = 0; x < GRID_ROWS; x++)
+        for(y = 0; y < GRID_ROWS; y++)
         {
             if(world[x][y].pFish != 0)
                 world[x][y].pFish->updated = 0;
@@ -251,19 +276,19 @@ void drawWorld()
 {
     int y = 0;
     int x = 0;
-    for(y = 0; y < GRID_COLUMNS; y++)
+    for(x = 0; x < GRID_COLUMNS; x++)
     {
-        for(x = 0; x < GRID_ROWS; x++)
+        for(y = 0; y < GRID_ROWS; y++)
         {
-            if(world[x][y].pFish != 0) // Check if null
-            {
-                DrawFishAt(world[x][y].pFish->pos);
-            }
+	    if(world[x][y].pFish != 0) 
+	    {
+		DrawFishAt(world[x][y].pFish->pos);
+	    }
 
-            if(world[x][y].pShark != 0) // Check if null
-            {
-                DrawSharkAt(world[x][y].pShark->pos);
-            }
+	    if(world[x][y].pShark != 0) 
+	    {
+		DrawSharkAt(world[x][y].pShark->pos);
+	    }
         }
     }
 
@@ -278,16 +303,15 @@ void drawWorld()
  */
 void cleanWorld(){
 
-    int y = 0;
-    for(y = 0; y < GRID_COLUMNS; y++)
-    {
-        int x = 0;
-        for(x = 0; x < GRID_ROWS; x++)
-        {
-            destroyAt(x,y);
-        }
-
-    }
+	int y = 0;
+	int x = 0;
+	for(x = 0; x < GRID_COLUMNS; x++)
+	{
+		for(y = 0; y < GRID_ROWS; y++)
+		{
+		    destroyAt(x,y);
+		}
+	}
 }
 
 

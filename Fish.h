@@ -28,7 +28,7 @@ Fish * fishFactory(int x, int y)
        Fish * pFish =  malloc(sizeof(Fish));
        pFish->pos.X = x;
        pFish->pos.Y = y;
-       pFish->updated = 0;
+       pFish->updated = 1;
        pFish->mSpawnCounter = 0;
        return pFish;
 }
@@ -49,6 +49,10 @@ void moveFish(int x, int y, Fish *fish)
     }
     else
     {
+	GridPosition newPosition;
+	newPosition.X = x;
+	newPosition.Y = y;
+	moveFishPointerTo(newPosition, fish);
     	fish->pos.X = x;
     	fish->pos.Y = y;
         // Updated fish age
