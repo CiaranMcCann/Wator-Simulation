@@ -295,11 +295,11 @@ void drawWorld()
 }
 
 
-/*! \brief Destories the enity at given grid location
+/*! \brief Destroys the enity at given grid location
  *
- *  Destories the enity at given grid location
- *  \param x - index into array
- *  \param y - index into array
+ *  Destroys the enity at given grid location
+ *  @param x - index into array
+ *  @param y - index into array
  */
 void cleanWorld(){
 
