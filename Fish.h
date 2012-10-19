@@ -102,7 +102,7 @@ void updateFish(int x, int y, Fish *pFish)
         available++;
     }
 
-    if(i>0) 
+    if(available>0) 
     {
         available = rand() % available;
         x = pFish->pos.X;
