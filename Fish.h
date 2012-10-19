@@ -1,3 +1,6 @@
+/*! \file Fish.h
+ *  \brief A file containing all functions for the Fish
+*/
 #ifndef FISH_H
 #define FISH_H
 
