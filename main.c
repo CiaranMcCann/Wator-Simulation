@@ -20,12 +20,18 @@ int main(int argc, char *argv[])
 			if (count == CYCLES_PER_FRAME)
 			{
 				updateWorld();
-
-				XGetWindowAttributes(dpy, win, &gwa);
-				glViewport(0, 0, gwa.width, gwa.height);
-				DrawBackground();
-				drawWorld(); //Draws all the fish and sharks in the world.
-				glXSwapBuffers(dpy, win);
+				if (DRAW_GRID)
+				{
+					XGetWindowAttributes(dpy, win, &gwa);
+					glViewport(0, 0, gwa.width, gwa.height);				
+					DrawBackground();
+					drawWorld();
+					glXSwapBuffers(dpy, win);
+				}
+				else
+				{
+					printf("Running\n");
+				}
 				count = 0;
 			}
 			++count;
