@@ -1,3 +1,6 @@
+/*! \file shark.h
+ *  \brief A file containing all functions for the Shark
+*/
 #ifndef SHARK_H
 #define SHARK_H
 
