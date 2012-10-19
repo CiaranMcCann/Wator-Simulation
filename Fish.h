@@ -66,27 +66,26 @@ void moveFish(int x, int y, Fish *fish)
 
 
 /*! \ Checks the surrounding grid positions for a free tile
- *  Store the possible directions in a character array and increase the available directions
+ *  Store the possible directions in a character array and increase the 'available' directions
  *  If the available directions is greater than 0 then a move is possible
- *  Pick a random number from the available directions and pass that to a switch
+ *  Pick a random number from the available directions and pass that to a switch statement
  *  Finally call movefish using the chosen direction
  *  @param int x The x position of the tile
- *  @param int y The x position of the tile
+ *  @param int y The y position of the tile
  *  @param Fish *fish Pointer to the current fish
  */
 
 void updateFish(int x, int y, Fish *pFish)
 {
-
+    // Make sure updated is set to 0 
     if (pFish->updated == 1)
         return;
 
-    // Make sure updated is set to 0 
     char direction[4];
     int available = 0;
 
     // Add all available directions to a char array
-    // Will try and refactor this
+    // Increase the available parameter
     if(checkTileForEntity(x, y+1) == 0){
         direction[available] = 'N';
         available++;
@@ -114,7 +113,7 @@ void updateFish(int x, int y, Fish *pFish)
         x = pFish->pos.X;
         y = pFish->pos.Y;
 
-
+        // Set the direction
         switch( direction[available] )
         {
                 case 'N': // North
