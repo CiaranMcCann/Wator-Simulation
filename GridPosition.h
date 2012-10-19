@@ -1,3 +1,6 @@
+/*! \file GridPosition.h
+ *  \brief Defines a structure to hold 2D positions.
+ */
 #ifndef GRIDPOSITION_H
 #define GRIDPOSITION_H
 

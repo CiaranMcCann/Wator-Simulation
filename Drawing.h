@@ -1,3 +1,8 @@
+/*! \file Drawing.h
+ * \brief A file containing drawing logic for the Wator simulation.
+ *
+ *  A file containing  initalization logic for OpenGL and functions to draw the grid, sharks and fish.
+ */ 
 #ifndef DRAWING_H
 #define DRAWING_H
 
@@ -8,11 +13,6 @@
 #include <GL/glu.h>
 #include "Globals.h"
 #include "GridPosition.h"
-
-/*! \brief A file containing drawing logic for the Wator simulation.
- *
- *  A file containing  initalization logic for OpenGL and functions to draw the grid, sharks and fish.
- */
 
 Display *dpy;	/*!< A poiter to the display to render to. */
 Window root;	/*!< The root (desktop) window. */

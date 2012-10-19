@@ -1,3 +1,7 @@
+/*! \file main.c
+ * \brief A file containing the main entry point for the program..
+ */ 
+ 
 #include <stdio.h>
 #include <stdlib.h>
 
