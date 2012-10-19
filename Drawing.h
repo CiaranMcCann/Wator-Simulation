@@ -22,8 +22,7 @@ Colormap cmap;	/*!< The colourmap to use for rendering. */
 XSetWindowAttributes swa;	/*!< The window attributes element to use for attaching events to the window. */
 Window win;	/*!< The window to render to. */
 GLXContext glc;	/*!< The GLContext to use for rendering. */
-XWindowAttributes gwa; /*!< ?. */
-XEvent xev; /*!< ?. */
+XWindowAttributes gwa; /*!< The window attributes. */
 
 float QuadWidth;	/*!< The width of each grid position when rendered to the screen. */
 float QuadHeight;	/*!< The height of each grid position when rendered to the screen. */
@@ -36,47 +35,50 @@ float QuadHeight;	/*!< The height of each grid position when rendered to the scr
  */
 int InitializeOpenGL()
 {
-	QuadWidth = 2.0f / ((float)GRID_COLUMNS + 1.0f);
-	QuadHeight = 2.0f / ((float)GRID_ROWS  + 1.0f);
-
-	// Send graphical output to the machine which is running the code.
-	dpy = XOpenDisplay(NULL);
-	if (dpy == NULL)
+	if (DRAW_GRID)
 	{
-		return 0;
+		QuadWidth = 2.0f / ((float)GRID_COLUMNS + 1.0f);
+		QuadHeight = 2.0f / ((float)GRID_ROWS  + 1.0f);
+
+		// Send graphical output to the machine which is running the code.
+		dpy = XOpenDisplay(NULL);
+		if (dpy == NULL)
+		{
+			return 0;
+		}
+
+		// Create a handle to the root (desktop) window to use as the parent of the program window.
+		root = DefaultRootWindow(dpy);
+
+		// Initalize visual attributes and check they are supported.
+		vi = glXChooseVisual(dpy, 0, att);
+		if (vi == NULL)
+		{
+			return 0;
+		}
+
+		// Create a colourmap for the window
+		cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
+
+		// Initalize XSetWindowAttributes structure.
+		// See X11/Xlib.h for complete definition.
+		swa.colormap = cmap;
+		swa.event_mask = ExposureMask | KeyPressMask;
+
+		// Create the window and attach Exposure and KeyPress events.
+		win = XCreateWindow(dpy, root, 0, 0, WindowWidth, WindowHeight, 0, vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
+
+		// Display window and set name.
+		XMapWindow(dpy, win);
+		XStoreName(dpy, win, "Wator Simulation");
+
+		// Create the GL context and bind it to the window.
+		glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
+		glXMakeCurrent(dpy, win, glc);
+
+		// Enable depth buffering
+		glEnable(GL_DEPTH_TEST);
 	}
-
-	// Create a handle to the root (desktop) window to use as the parent of the program window.
-	root = DefaultRootWindow(dpy);
-
-	// Initalize visual attributes and check they are supported.
-	vi = glXChooseVisual(dpy, 0, att);
-	if (vi == NULL)
-	{
-		return 0;
-	}
-
-	// Create a colourmap for the window
-	cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
-
-	// Initalize XSetWindowAttributes structure.
-	// See X11/Xlib.h for complete definition.
-	swa.colormap = cmap;
-	swa.event_mask = ExposureMask | KeyPressMask;
-
-	// Create the window and attach Exposure and KeyPress events.
-	win = XCreateWindow(dpy, root, 0, 0, WindowWidth, WindowHeight, 0, vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
-
-	// Display window and set name.
-	XMapWindow(dpy, win);
-	XStoreName(dpy, win, "Wator Simulation");
-
-	// Create the GL context and bind it to the window.
-	glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
-	glXMakeCurrent(dpy, win, glc);
-
-	// Enable depth buffering
-	glEnable(GL_DEPTH_TEST);
 
 	return 1;
 }

@@ -12,12 +12,14 @@ float const WindowWidth = 800.0f;
 // NOTE: const in C means read-only, the value can still actually change
 #define GRID_ROWS  500
 #define GRID_COLUMNS 500
-#define CYCLES_PER_FRAME 10000000
+#define CYCLES_PER_FRAME 1
 
 #define N_SHARKS 100
 #define N_FISH 2000
 #define FISH_SPAWNRATE 3
 #define SHARK_SPAWNRATE 7
 #define SHARK_STARVERATE 6
+
+#define DRAW_GRID 0
 
 #endif
