@@ -38,6 +38,13 @@ Shark * sharkFactory(int x, int y)
        return pShark;
 }
 
+/*!
+ *  \brief Moves the shark and handles spawning and dying.
+ *
+ *  \param x The X position of the shark
+ *  \param y The Y position of the shark
+ *  \param pShark The pointer to the shark to be moved
+*/
 void sharkMove(int x, int y, Shark * pShark)
 {
     pShark->mSpawnCounter += 1;
@@ -54,15 +61,20 @@ void sharkMove(int x, int y, Shark * pShark)
     }
     else
     {
-	GridPosition newPosition;
-	newPosition.X = x;
-	newPosition.Y = y;
-	moveSharkPointerTo(newPosition, pShark);
-    	pShark->pos.X = x;
-    	pShark->pos.Y = y;
+		GridPosition newPosition;
+		newPosition.X = x;
+		newPosition.Y = y;
+		moveSharkPointerTo(newPosition, pShark);
+	    	pShark->pos.X = x;
+	    	pShark->pos.Y = y;
     }
 }
 
+/*!
+ *  \brief Function for the shark to hunt for fish
+ *
+ *  \param pShark The pointer to the shark to be moved
+*/
 void sharkHunt(Shark * pShark)
 {
 	char dir[4];
@@ -123,7 +135,13 @@ void sharkHunt(Shark * pShark)
 
 }
 
-
+/*!
+ *  \brief Updates the shark.
+ *
+ *  \param x The X position of the shark
+ *  \param y The Y position of the shark
+ *  \param pShark The pointer to the shark to be moved
+*/
 void updateShark(int x, int y, Shark * pShark)
 {
     // Make sure not to update twice
