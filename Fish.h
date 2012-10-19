@@ -21,7 +21,7 @@ typedef struct{
 /*! \brief Creates fish.
  *
  *  Creates a fish type on the heap and initlizes it.
- *  WARNING: The call is repsonisbly for freeing the memory after
+ *  WARNING: The call is responsible for freeing the memory after
  */
 Fish * fishFactory(int x, int y)
 {
@@ -34,10 +34,13 @@ Fish * fishFactory(int x, int y)
 }
 
 /*! \ Moves the fish position
- *	
+ *  Update the fish spawncounter by 1
+ *  If the spawnrate equals the counter create a new fish in the new position. 
  *  
+ *  @param int x The x position of the tile
+ *  @param int y The x position of the tile
+ *  @param Fish *fish Pointer to the current fish
  */
-
 void moveFish(int x, int y, Fish *fish)
 {
     fish->mSpawnCounter +=1;
@@ -55,72 +58,69 @@ void moveFish(int x, int y, Fish *fish)
 	moveFishPointerTo(newPosition, fish);
     	fish->pos.X = x;
     	fish->pos.Y = y;
-        // Updated fish age
     }
 }
 
-
-
 /*! \ Checks the surrounding grid positions for a free tile
- *  
- *  I was originally going to use a loop to keep trying randoms until it hit one that was free
- *  But I decided to 
+ *  Store the possible directions in a character array and increase the 'available' directions
+ *  If the available directions is greater than 0 then a move is possible
+ *  Pick a random number from the available directions and pass that to a switch statement
+ *  Finally call movefish using the chosen direction
+ *  @param int x The x position of the tile
+ *  @param int y The y position of the tile
+ *  @param Fish *fish Pointer to the current fish
  */
-
 void updateFish(int x, int y, Fish *pFish)
 {
-
+    // Make sure updated is set to 0 
     if (pFish->updated == 1)
         return;
 
-    
-
-	// Make sure updated is set to 0 
     char direction[4];
-    int i = 0;
+    int available = 0; //!< Number of available directions
 
     // Add all available directions to a char array
-    // Will try and refactor this
+    // Increase the available parameter
     if(checkTileForEntity(x, y+1) == 0){
-    	direction[i] = 'N';
-    	i++;
+        direction[available] = 'N';
+        available++; // Increase the number of available directions
     } 
     
     if(checkTileForEntity(x, y-1) == 0){
-    	direction[i] = 'S';
-    	i++;
+        direction[available] = 'S';
+        available++;
     }
 
     if (checkTileForEntity(x+1, y) == 0){
-    	direction[i] = 'E';
-    	i++;
+        direction[available] = 'E';
+        available++;
     }
 
 
     if (checkTileForEntity(x-1, y) == 0){
-    	direction[i] = 'W';
-    	i++;
+        direction[available] = 'W';
+        available++;
     }
 
-    if(i>0) // I
+    if(i>0) 
     {
-        i = rand() % i;
+        available = rand() % available;
         x = pFish->pos.X;
         y = pFish->pos.Y;
 
-
-        switch( direction[i] )
+        // Set the direction
+        switch( direction[available] )
         {
-                case 'N': // North
+                case 'N': // Direction is North
                     y+=1;
                     break;
-                case 'S': // South
+                case 'S': // Direction is South
                     y-=1;
                     break;
-                case 'E': // East
+                case 'E': // Direction is East
                     x+=1;
                     break;
-                case 'W': // West
+                case 'W': // Direction is West
                     x-=1;
                     break;
                 default :
