@@ -1,3 +1,6 @@
+/*! \file World.h
+ *  \brief A file containing all functions for the world
+*/
 #ifndef WORLD_H
 #define WORLD_H
 
@@ -164,7 +167,7 @@ void populateWorld(int nFish, int nSharks){
 /*! \ Checks a tile to see if it contains fish or shark
  *  Checks for nulls squares
  *  This will only work for fish so may rename to checkTileFish or somesuch
- *  
+ *
  */
 
 int checkTileForEntity(int x, int y)
@@ -252,7 +255,7 @@ void updateWorld()
         {
             if(world[x][y].pFish != 0)
                 world[x][y].pFish->updated = 0;
-            
+
 
             if(world[x][y].pShark != 0)
             {
@@ -280,12 +283,12 @@ void drawWorld()
     {
         for(y = 0; y < GRID_ROWS; y++)
         {
-	    if(world[x][y].pFish != 0) 
+	    if(world[x][y].pFish != 0)
 	    {
 		DrawFishAt(world[x][y].pFish->pos);
 	    }
 
-	    if(world[x][y].pShark != 0) 
+	    if(world[x][y].pShark != 0)
 	    {
 		DrawSharkAt(world[x][y].pShark->pos);
 	    }
