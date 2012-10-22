@@ -1,6 +1,7 @@
 /*! \file World.h
  *  \brief A file containing all functions for the world
 */
+
 #ifndef WORLD_H
 #define WORLD_H
 
