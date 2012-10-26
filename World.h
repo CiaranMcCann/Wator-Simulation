@@ -232,10 +232,13 @@ void updateWorld()
     int y = 0;
     int x = 0;
 
+        
     for(x = 0; x < GRID_COLUMNS; x++)
     {
+	     
         for(y = 0; y < GRID_ROWS; y++)
         {
+	
             if(world[x][y].pFish != 0) // Check if null
             {
                 updateFish(x, y, world[x][y].pFish);
@@ -247,12 +250,19 @@ void updateWorld()
             }
         }
     }
+    
+  
 
     // Reset the updated counter
+    
+    #pragma omp parallel for
     for(x= 0; x < GRID_COLUMNS; x++)
     {
+	     numThreads = omp_get_num_threads();
+	#pragma omp parallel for
         for(y = 0; y < GRID_ROWS; y++)
         {
+			
             if(world[x][y].pFish != 0)
                 world[x][y].pFish->updated = 0;
 

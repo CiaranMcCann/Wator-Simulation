@@ -6,7 +6,7 @@
 # This is a very simple make file, more will be added to this to add in deps
 
 CC=gcc
-CFLAGS=-lX11 -lGL -lGLU -I.
+CFLAGS=-lX11 -lGL -lGLU -I. -fopenmp
 APP=Wator
 
 build: main.o

@@ -11,6 +11,8 @@
 #include "Drawing.h"
 #include "World.h"
 
+#include <omp.h>
+
 /*!
  *  \brief Saves a performance log for the simulation.
  *
@@ -25,7 +27,8 @@ int saveLogTofile(int * fpsLogs)
 	FILE * pFile = fopen( "Performance_data.log", "w" );
 	fprintf( pFile, "Rows: %d\n", GRID_ROWS ); 
 	fprintf( pFile, "Columns: %d\n", GRID_COLUMNS ); 
-	fprintf( pFile, "Threads: SERIAL\n" ); 
+	fprintf( pFile, "Threads Max: %d\n",  omp_get_max_threads() ); 
+	fprintf( pFile, "Threads Used: %d\n",  numThreads ); 
 	int count = 0;
 	for (count = 0; count < SIMULATION_LENGTH; ++count)
 	{

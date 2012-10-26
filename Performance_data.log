@@ -1,23 +1,9 @@
-Rows: 500
-Columns: 500
-Threads: SERIAL
-19
-34
-33
-32
-30
-30
-29
-28
-28
-28
-27
-27
-26
-27
-26
-27
-26
-27
-26
-27
+Rows: 200
+Columns: 200
+Threads Max: 8
+Threads Used: 8
+373
+373
+369
+367
+366
