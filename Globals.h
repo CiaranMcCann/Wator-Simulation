@@ -8,10 +8,10 @@
 float const WindowHeight = 800.0f;	/*!< The height of the window to create. */
 float const WindowWidth = 800.0f;	/*!< The width of the window to create. */
 
-int numThreads = 0;
+int numThreads = 1;
 
-#define GRID_ROWS  200		/*!< The number of rows in the grid. */
-#define GRID_COLUMNS 200		/*!< The number of columns in the grid. */
+#define GRID_ROWS  500		/*!< The number of rows in the grid. */
+#define GRID_COLUMNS 500		/*!< The number of columns in the grid. */
 #define CYCLES_PER_FRAME 1	/*!< The number of cycles which must complete before an update occurs. */
 
 #define N_SHARKS 100	/*!< The initial number of sharks. */
@@ -21,6 +21,6 @@ int numThreads = 0;
 #define SHARK_STARVERATE 6	/*!< The number of updates which must occur before a shark will die of starvation. */
 
 #define DRAW_GRID 0	/*!< Whether the grid should be drawn or not. */
-#define SIMULATION_LENGTH  5	/*!< The number of seconds to run for, when benchmarking. */
+#define SIMULATION_LENGTH  15	/*!< The number of seconds to run for, when benchmarking. */
 
 #endif

@@ -223,43 +223,48 @@ int checkTileForFish(int x, int y)
 }
 
 
-
 /*! update
  */
-
 void updateWorld()
 {
-    int y = 0;
-    int x = 0;
-
-        
-    for(x = 0; x < GRID_COLUMNS; x++)
-    {
-	     
-        for(y = 0; y < GRID_ROWS; y++)
-        {
+	{
+	    int y = 0;
+	    int x = 0;
 	
-            if(world[x][y].pFish != 0) // Check if null
-            {
-                updateFish(x, y, world[x][y].pFish);
-            }
+	    	
+	    //#pragma omp parallel for 
+	    for(x = 0; x < GRID_COLUMNS; x++)
+	    {
 
-            if(world[x][y].pShark != 0) // Check if null
-            {
-                updateShark(x, y, world[x][y].pShark);
-            }
-        }
-    }
+	    	//#pragma omp parallel for 
+	        for(y = 0; y < GRID_ROWS; y++)
+	        {
+	        	//#pragma omp ordered
+	        	{	
+
+		            if(world[x][y].pFish != 0) // Check if null
+		            {
+		                updateFish(x, y, world[x][y].pFish);
+		            }
+		            else if(world[x][y].pShark != 0) // Check if null
+		            {
+		                updateShark(x, y, world[x][y].pShark);
+		            }
+		        }
+	        }
+	    }
+	}
     
   
 
     // Reset the updated counter
     
-    #pragma omp parallel for
+   
+    int y = 0;
+    int x = 0;
+    #pragma omp parallel for collapse(2)
     for(x= 0; x < GRID_COLUMNS; x++)
     {
-	     numThreads = omp_get_num_threads();
-	#pragma omp parallel for
         for(y = 0; y < GRID_ROWS; y++)
         {
 			
@@ -277,9 +282,11 @@ void updateWorld()
                     destroyAt(x, y);
                 }
             }
+
+            //if(numThreads == 1) 
+           // numThreads = omp_get_num_threads(); //this call is slow every frame
         }
     }
-
 }
 
 

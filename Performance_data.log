@@ -1,9 +1,5 @@
-Rows: 200
-Columns: 200
+Rows: 500
+Columns: 500
 Threads Max: 8
-Threads Used: 8
-373
-373
-369
-367
-366
+Threads Used: 1
+73

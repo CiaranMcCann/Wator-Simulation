@@ -30,10 +30,12 @@ int saveLogTofile(int * fpsLogs)
 	fprintf( pFile, "Threads Max: %d\n",  omp_get_max_threads() ); 
 	fprintf( pFile, "Threads Used: %d\n",  numThreads ); 
 	int count = 0;
-	for (count = 0; count < SIMULATION_LENGTH; ++count)
+	int total = 0;
+	for (count = 1; count < SIMULATION_LENGTH; ++count)
 	{
-		fprintf( pFile, "%d\n", fpsLogs[count] ); 
+		total += fpsLogs[count];
 	}
+	fprintf( pFile, "%d\n", total/(SIMULATION_LENGTH-1) ); 
 	close( pFile );
 }
 
