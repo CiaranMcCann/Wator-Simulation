@@ -20,22 +20,24 @@
 */
 int saveLogTofile(int * fpsLogs)
 {
-	//Rows = .......\n
-	//Columns = ........\n
-	//Threads = ........\n
-	//20 lines of fps
-	FILE * pFile = fopen( "Performance_data.log", "w" );
-	fprintf( pFile, "Rows: %d\n", GRID_ROWS ); 
-	fprintf( pFile, "Columns: %d\n", GRID_COLUMNS ); 
-	fprintf( pFile, "Threads Max: %d\n",  omp_get_max_threads() ); 
-	fprintf( pFile, "Threads Used: %d\n",  numThreads ); 
+	char name [50];
+	
+	int length = sprintf (name, "%d %s %d %s %d %s\n", GRID_ROWS, "x", GRID_COLUMNS, ":", numThreads, "cores.log");
+	name[length-1] = '\0';	
+	
+	FILE * pLogFile = fopen( "Performance_data.log", "w" );	
+	FILE * pFile = fopen( name, "w" );	
+	fprintf( pFile, "%d %c %d %c %d %s\n", GRID_ROWS, 'x', GRID_COLUMNS, ':', numThreads, "cores" ); 
+	fprintf( pLogFile, "%d %c %d %c %d %s\n", GRID_ROWS, 'x', GRID_COLUMNS, ':', numThreads, "cores" ); 
+	
 	int count = 0;
-	int total = 0;
-	for (count = 1; count < SIMULATION_LENGTH; ++count)
-	{
-		total += fpsLogs[count];
+	for (count = 0; count < SIMULATION_LENGTH; ++count)
+	{		
+		fprintf( pFile, "%d\n",  fpsLogs[count]); 
+		fprintf( pLogFile, "%d\n",  fpsLogs[count]); 
 	}
-	fprintf( pFile, "%d\n", total/(SIMULATION_LENGTH-1) ); 
+	
+	close( pLogFile );
 	close( pFile );
 }
 
@@ -43,8 +45,9 @@ int saveLogTofile(int * fpsLogs)
  */
 int main(int argc, char *argv[])
 {
+	omp_set_num_threads(numThreads);
 	printf( "Simulation will run for %d seconds.\n", SIMULATION_LENGTH );
-	
+		
 	int run = 1;
 	int seconds = 0;
 	double secondTimer = 0.0;

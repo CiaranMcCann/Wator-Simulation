@@ -144,12 +144,15 @@ void populateWorld(int nFish, int nSharks){
     srand(time(NULL));
 
     int total = nFish + nSharks;
+    int x = 0;
+    int y = 0;
 
     int i = 0; //C90 standard doesn't allow loop var declaration inside loop
+    #pragma omp parallell for private(i,total,nFish,x,y,GRID_ROWS,GRID_COLUMNS) 
     for(i = 0; i < total; i++)
     {
-        int x = rand() % GRID_ROWS;
-        int y = rand() % GRID_COLUMNS;
+        x = rand() % GRID_ROWS;
+        y = rand() % GRID_COLUMNS;
 
         if(i < nFish){
             //continue with popluating fish
@@ -169,7 +172,6 @@ void populateWorld(int nFish, int nSharks){
  *  This will only work for fish so may rename to checkTileFish or somesuch
  *
  */
-
 int checkTileForEntity(int x, int y)
 {
     int i = 0;
@@ -230,18 +232,15 @@ void updateWorld()
 	{
 	    int y = 0;
 	    int x = 0;
-	
-	    	
-	    //#pragma omp parallel for 
-	    for(x = 0; x < GRID_COLUMNS; x++)
-	    {
-
-	    	//#pragma omp parallel for 
-	        for(y = 0; y < GRID_ROWS; y++)
+		    	
+	    #pragma omp parallel for private(x,y)
+	    for(y = 0; y < GRID_ROWS; y++)
+	    {		
+		#pragma omp parallel for private(x,)
+	        for(x = 0; x < GRID_COLUMNS; x++)
 	        {
 	        	//#pragma omp ordered
 	        	{	
-
 		            if(world[x][y].pFish != 0) // Check if null
 		            {
 		                updateFish(x, y, world[x][y].pFish);
@@ -252,6 +251,7 @@ void updateWorld()
 		            }
 		        }
 	        }
+		
 	    }
 	}
     
@@ -263,9 +263,9 @@ void updateWorld()
     int y = 0;
     int x = 0;
     #pragma omp parallel for collapse(2)
-    for(x= 0; x < GRID_COLUMNS; x++)
+    for(y = 0; y < GRID_ROWS; y++)
     {
-        for(y = 0; y < GRID_ROWS; y++)
+	for(x= 0; x < GRID_COLUMNS; x++)
         {
 			
             if(world[x][y].pFish != 0)

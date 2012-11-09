@@ -76,8 +76,8 @@ void moveFish(int x, int y, Fish *fish)
 void updateFish(int x, int y, Fish *pFish)
 {
 
-            if(numThreads == 1) 
-            numThreads = omp_get_num_threads(); //this call is slow every frame
+            //~ if(numThreads == 1) 
+            //~ numThreads = omp_get_num_threads(); //this call is slow every frame
     // Make sure updated is set to 0 
     if (pFish->updated == 1)
         return;
