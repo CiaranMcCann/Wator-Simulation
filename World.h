@@ -52,7 +52,7 @@ void _createAt(int x, int y, int fishFlag)
     {
         if(fishFlag)
         {
-              world[x][y].pFish = fishFactory(x,y);
+            world[x][y].pFish = fishFactory(x,y);
         }
         else
         {
@@ -95,18 +95,16 @@ void moveSharkPointerTo(GridPosition newPos, Shark *pShark)
  */
 void destroyAt(int x, int y)
 {
-    //printf("destroyAt\n");
-    //printf("%d, ", x);
-    //printf("%d\n", y);
-
-    free(world[x][y].pFish);
-    free(world[x][y].pShark);
-
-    world[x][y].pFish = 0;
-    world[x][y].pShark = 0;
-
-    //printf("destroyAt success\n");
-
+	if(world[x][y].pFish)
+	{
+    	free(world[x][y].pFish);
+    	world[x][y].pFish = 0;
+	}
+	else if(world[x][y].pShark)
+	{
+    	free(world[x][y].pShark);
+    	world[x][y].pShark = 0;
+	}
 }
 
 
@@ -137,34 +135,37 @@ void createSharkAt(int x, int y){
  *  \param nFish - Number of fish
  *  \param nShark - Number of sharks
  */
-void populateWorld(int nFish, int nSharks){
-//    Its probably a good idea to emphasize that srand() should only be called once.
-//    Also, in a threaded application, might want to make sure that the generator's
-//    state is stored per thread, and seed the generator once for each thread.
-    srand(time(NULL));
-
-    int total = nFish + nSharks;
-    int x = 0;
-    int y = 0;
-
-    int i = 0; //C90 standard doesn't allow loop var declaration inside loop
-    #pragma omp parallell for private(i,total,nFish,x,y,GRID_ROWS,GRID_COLUMNS) 
-    for(i = 0; i < total; i++)
+void populateWorld(int nFish, int nSharks)
+{
+	//    Its probably a good idea to emphasize that srand() should only be called once.
+	//    Also, in a threaded application, might want to make sure that the generator's
+	//    state is stored per thread, and seed the generator once for each thread.
+	#pragma omp parallel
     {
-        x = rand() % GRID_ROWS;
-        y = rand() % GRID_COLUMNS;
+    	srand(time(NULL));
+	    int total = nFish + nSharks;
+	    int x = 0;
+	    int y = 0;
+	    int i = 0; //C90 standard doesn't allow loop var declaration inside loop
 
-        if(i < nFish){
-            //continue with popluating fish
-            createFishAt(x,y);
+    	#pragma omp for
+	    for(i = 0; i < total; i++)
+	    {
+	        x = rand() % GRID_ROWS;
+	        y = rand() % GRID_COLUMNS;
 
-        }else{
-            // once all fish done popluate sharks
-            createSharkAt(x,y);
-        }
-
-    }
-
+	        if(i < nFish)
+	        {
+	            //continue with popluating fish
+	            createFishAt(x,y);
+	        }
+	        else
+	        {
+	            // once all fish done popluate sharks
+	            createSharkAt(x,y);
+	        }
+	    }
+	}
 }
 
 /*! \ Checks a tile to see if it contains fish or shark
@@ -229,65 +230,55 @@ int checkTileForFish(int x, int y)
  */
 void updateWorld()
 {
-	{
 	    int y = 0;
 	    int x = 0;
-		    	
-	    #pragma omp parallel for private(x,y)
-	    for(y = 0; y < GRID_ROWS; y++)
-	    {		
-		#pragma omp parallel for private(x,)
-	        for(x = 0; x < GRID_COLUMNS; x++)
-	        {
-	        	//#pragma omp ordered
-	        	{	
-		            if(world[x][y].pFish != 0) // Check if null
-		            {
-		                updateFish(x, y, world[x][y].pFish);
-		            }
-		            else if(world[x][y].pShark != 0) // Check if null
-		            {
-		                updateShark(x, y, world[x][y].pShark);
-		            }
-		        }
-	        }
-		
-	    }
-	}
-    
-  
-
-    // Reset the updated counter
-    
-   
-    int y = 0;
-    int x = 0;
-    #pragma omp parallel for collapse(2)
-    for(y = 0; y < GRID_ROWS; y++)
+		  
+    #pragma omp parallel 
     {
-	for(x= 0; x < GRID_COLUMNS; x++)
-        {
-			
-            if(world[x][y].pFish != 0)
-                world[x][y].pFish->updated = 0;
-
-
-            if(world[x][y].pShark != 0)
+        #pragma omp for
+        for(y = 0; y < GRID_ROWS; y++)
+        {		
+            #pragma omp for
+            for(x = 0; x < GRID_COLUMNS; x++)
             {
-                world[x][y].pShark->updated = 0;
-
-                // Check if the shark is dead
-                if (world[x][y].pShark->mDead)
+                if(world[x][y].pFish != 0) // Check if null
                 {
-                    destroyAt(x, y);
+                    updateFish(x, y, world[x][y].pFish);
+                }
+            	else if(world[x][y].pShark != 0) // Check if null
+                {
+                    updateShark(x, y, world[x][y].pShark);
                 }
             }
-
-            //if(numThreads == 1) 
-           // numThreads = omp_get_num_threads(); //this call is slow every frame
         }
+   		
+        #pragma omp barrier
+
+        #pragma omp for
+        for(y = 0; y < GRID_ROWS; y++)
+        {
+        	#pragma omp for
+            for(x= 0; x < GRID_COLUMNS; x++)
+            {
+                if(world[x][y].pFish != 0)
+                {
+                    world[x][y].pFish->updated = 0;
+                }
+                else if(world[x][y].pShark != 0)
+                {
+                    world[x][y].pShark->updated = 0;
+                    // Check if the shark is dead
+                    if (world[x][y].pShark->mDead)
+                    {
+                        destroyAt(x, y);
+                    }
+                }
+            } // end for x
+        } // end for y
+
     }
-}
+
+} // end updateWorld
 
 
 /*! \brief Draws the world

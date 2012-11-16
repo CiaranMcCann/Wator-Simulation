@@ -55,10 +55,10 @@ void moveFish(int x, int y, Fish *fish)
     }
     else
     {
-	GridPosition newPosition;
-	newPosition.X = x;
-	newPosition.Y = y;
-	moveFishPointerTo(newPosition, fish);
+    	GridPosition newPosition;
+    	newPosition.X = x;
+    	newPosition.Y = y;
+    	moveFishPointerTo(newPosition, fish);
     	fish->pos.X = x;
     	fish->pos.Y = y;
     }
@@ -75,9 +75,6 @@ void moveFish(int x, int y, Fish *fish)
  */
 void updateFish(int x, int y, Fish *pFish)
 {
-
-            //~ if(numThreads == 1) 
-            //~ numThreads = omp_get_num_threads(); //this call is slow every frame
     // Make sure updated is set to 0 
     if (pFish->updated == 1)
         return;
@@ -85,28 +82,27 @@ void updateFish(int x, int y, Fish *pFish)
     char direction[4];
     int available = 0; //!< Number of available directions
 
-   // Add all available directions to a char array
+    // Add all available directions to a char array
     // Increase the available parameter
-        if(checkTileForEntity(x, y+1) == 0){
-            direction[available] = 'N';
-            available++; // Increase the number of available directions
-        } 
+    if(checkTileForEntity(x, y+1) == 0){
+        direction[available] = 'N';
+        available++; // Increase the number of available directions
+    } 
 
-        if(checkTileForEntity(x, y-1) == 0){
-            direction[available] = 'S';
-            available++;
-        }
+    if(checkTileForEntity(x, y-1) == 0){
+        direction[available] = 'S';
+        available++;
+    }
 
-        if (checkTileForEntity(x+1, y) == 0){
-            direction[available] = 'E';
-            available++;
-        }
-   
-        if (checkTileForEntity(x-1, y) == 0){
-            direction[available] = 'W';
-            available++;
-        }
+    if (checkTileForEntity(x+1, y) == 0){
+        direction[available] = 'E';
+        available++;
+    }
 
+    if (checkTileForEntity(x-1, y) == 0){
+        direction[available] = 'W';
+        available++;
+    }
 
     if(available>0) 
     {
@@ -134,11 +130,8 @@ void updateFish(int x, int y, Fish *pFish)
         }// end switch
 
         manageWrapAround(&x, &y);
-        moveFish(x, y, pFish);
-                
+        moveFish(x, y, pFish);                
     }
-
-
 }
 
 #endif

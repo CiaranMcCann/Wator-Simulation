@@ -21,6 +21,6 @@ int numThreads = 8;
 #define SHARK_STARVERATE 6	/*!< The number of updates which must occur before a shark will die of starvation. */
 
 #define DRAW_GRID 0	/*!< Whether the grid should be drawn or not. */
-#define SIMULATION_LENGTH  2	/*!< The number of seconds to run for, when benchmarking. */
+#define SIMULATION_LENGTH  10	/*!< The number of seconds to run for, when benchmarking. */
 
 #endif
