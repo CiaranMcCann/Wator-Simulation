@@ -18,6 +18,9 @@
 typedef struct {
     Fish * pFish;
     Shark * pShark;
+
+    //int padding[2]
+
 } GirdObj;
 
  // Array of GirdObjs which
@@ -238,7 +241,7 @@ void updateWorld()
         #pragma omp for
         for(y = 0; y < GRID_ROWS; y++)
         {		
-            //#pragma omp for
+            #pragma omp for
             for(x = 0; x < GRID_COLUMNS; x++)
             {
                 if(world[x][y].pFish != 0) // Check if null
@@ -257,7 +260,7 @@ void updateWorld()
         #pragma omp for
         for(y = 0; y < GRID_ROWS; y++)
         {
-        	//#pragma omp for
+        	#pragma omp for
             for(x= 0; x < GRID_COLUMNS; x++)
             {
                 if(world[x][y].pFish != 0)

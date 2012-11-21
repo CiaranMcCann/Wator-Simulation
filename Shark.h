@@ -19,6 +19,7 @@ typedef struct{
     int mStarveCounter;
     int mDead;
     int mFed;
+
 }Shark;
 
 

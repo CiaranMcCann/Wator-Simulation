@@ -47,6 +47,9 @@ int main(int argc, char *argv[])
 {
 	omp_set_num_threads(numThreads);
 	printf( "Simulation will run for %d seconds.\n", SIMULATION_LENGTH );
+
+	//__declspec (align(64)) int thread1_global_variable;
+	//__declspec (align(64)) int thread2_global_variable;
 		
 	int run = 1;
 	int seconds = 0;
