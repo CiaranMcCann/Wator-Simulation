@@ -27,8 +27,11 @@ int saveLogTofile(int * fpsLogs)
 	
 	FILE * pLogFile = fopen( "Performance_data.log", "w" );	
 	FILE * pFile = fopen( name, "w" );	
-	fprintf( pFile, "%d %c %d %c %d %s\n", GRID_ROWS, 'x', GRID_COLUMNS, ':', numThreads, "cores" ); 
-	fprintf( pLogFile, "%d %c %d %c %d %s\n", GRID_ROWS, 'x', GRID_COLUMNS, ':', numThreads, "cores" ); 
+
+// Added a comment tag, this is for use in gnuplot
+	
+	fprintf( pFile, "%c %d %c %d %c %d %s\n",'#', GRID_ROWS, 'x', GRID_COLUMNS, ':', numThreads, "cores" ); 
+	fprintf( pLogFile, "%c  %d %c %d %c %d %s\n",'#', GRID_ROWS, 'x', GRID_COLUMNS, ':', numThreads, "cores" ); 
 	
 	int count = 0;
 	for (count = 0; count < SIMULATION_LENGTH; ++count)
