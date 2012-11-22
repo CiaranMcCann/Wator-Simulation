@@ -1,0 +1,8 @@
+set terminal png
+set output '/home/lab422/dev/Wator-Simulation/performance-graph1.png'
+set title "Wator FPS : 2000 x 2000 Grid "
+set xlabel "Seconds"
+set ylabel "Cycles"
+set autoscale 
+plot "/home/lab422/dev/Wator-Simulation/2000 x 2000 : 1 cores.log" using 1 with lines title 'Single Core FPS', \
+"/home/lab422/dev/Wator-Simulation/2000 x 2000 : 8 cores.log" using 1 with lines title 'Multi Core FPS'
