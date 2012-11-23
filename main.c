@@ -18,10 +18,31 @@
  *
  *  \param fpsLogs The array of logged frames per second.
 */
-int saveLogTofile(int * fpsLogs)
+int saveLogTofile(float * averageFrameLog)
 {
 	char name [50];
 	
+	float minimum = 10000000.0f;
+	float maximum = 0.0f;
+	float average = 0.0f;
+	float sum = 0.0f;
+	int count = 0;
+	for (count = 0; count < NUMBER_OF_RUNS; count++)
+	{
+		sum += averageFrameLog[count];
+		if (averageFrameLog[count] > maximum)
+		{
+			maximum = averageFrameLog[count];
+		}
+		
+		if (averageFrameLog[count] < minimum)
+		{
+			minimum = averageFrameLog[count];
+		}		
+	}
+	
+	average = sum / (float)count;
+		
 	int length = sprintf (name, "%d %s %d %s %d %s\n", GRID_ROWS, "x", GRID_COLUMNS, ":", numThreads, "cores.log");
 	name[length-1] = '\0';	
 	
@@ -30,15 +51,11 @@ int saveLogTofile(int * fpsLogs)
 
 // Added a comment tag, this is for use in gnuplot
 	
-	fprintf( pFile, "%c %d %c %d %c %d %s\n",'#', GRID_ROWS, 'x', GRID_COLUMNS, ':', numThreads, "cores" ); 
-	fprintf( pLogFile, "%c  %d %c %d %c %d %s\n",'#', GRID_ROWS, 'x', GRID_COLUMNS, ':', numThreads, "cores" ); 
-	
-	int count = 0;
-	for (count = 0; count < SIMULATION_LENGTH; ++count)
-	{		
-		fprintf( pFile, "%d\n",  fpsLogs[count]); 
-		fprintf( pLogFile, "%d\n",  fpsLogs[count]); 
-	}
+	fprintf( pFile, "#Min	#Max	#Average\n"); 
+	fprintf( pLogFile, "#Min	#Max	#Average\n"); 
+		
+	fprintf( pFile, "%f%c%f%c%f\n",  minimum,' \t', maximum, ' \t', average); 
+	fprintf( pLogFile, "%f%c%f%c%f\n",  minimum, ' \t', maximum, ' \t', average); 
 	
 	close( pLogFile );
 	close( pFile );
@@ -49,63 +66,80 @@ int saveLogTofile(int * fpsLogs)
 int main(int argc, char *argv[])
 {
 	omp_set_num_threads(numThreads);
-	printf( "Simulation will run for %d seconds.\n", SIMULATION_LENGTH );
-		
-	int run = 1;
-	int seconds = 0;
-	double secondTimer = 0.0;
-	int frameCounter = 0;
-	time_t currentTime = 0;
-	time_t previousTime = 0;	
-	int framesPerSecond[SIMULATION_LENGTH];
-		
-	populateWorld(N_FISH,N_SHARKS);
-		
-	if (InitializeOpenGL())
+	
+	int runCount = 0;	
+	float averageFrames[NUMBER_OF_RUNS];
+	
+	while (runCount < NUMBER_OF_RUNS)
 	{
-		int count = 0;
-		while (run)
+		printf( "Simulation will run for %d seconds.\n", SIMULATION_LENGTH );
+				
+		int running= 1;
+		int seconds = 0;
+		double secondTimer = 0.0;
+		int frameCounter = 0;
+		time_t currentTime = 0;
+		time_t previousTime = 0;	
+				
+		float framesPerSecond[SIMULATION_LENGTH];			
+		populateWorld(N_FISH,N_SHARKS);
+			
+		if (InitializeOpenGL())
 		{
-			++count;
-			if (count == CYCLES_PER_FRAME)
-			{				
-				count = 0;
-				updateWorld();
-				if (DRAW_GRID)
-				{
-					XGetWindowAttributes(dpy, win, &gwa);
-					glViewport(0, 0, gwa.width, gwa.height);				
-					DrawBackground();
-					drawWorld();
-					glXSwapBuffers(dpy, win);
-				}
-				else
-				{
-					frameCounter++;
-					currentTime = time(NULL);					
-					if (previousTime)
+			int count = 0;
+			while (running)
+			{
+				++count;
+				if (count == CYCLES_PER_FRAME)
+				{				
+					count = 0;
+					updateWorld();
+					if (DRAW_GRID)
 					{
-						secondTimer += difftime(currentTime, previousTime);	
+						XGetWindowAttributes(dpy, win, &gwa);
+						glViewport(0, 0, gwa.width, gwa.height);				
+						DrawBackground();
+						drawWorld();
+						glXSwapBuffers(dpy, win);
 					}
-					previousTime = time(NULL);				
-					
-					if (secondTimer >= 1.0)
-					{
-						secondTimer -= 1.0;
-						framesPerSecond[seconds] = frameCounter;
-						++seconds;
-						// printf( "%d\n", frameCounter);						
-						frameCounter = 0;						
-						if (seconds == SIMULATION_LENGTH)
+					else
+					{						
+						frameCounter++;
+						currentTime = time(NULL);					
+						if (previousTime)
 						{
-							run = 0;
-							saveLogTofile( framesPerSecond );
-							printf( "Performance data saved to log file.\n");
+							secondTimer += difftime(currentTime, previousTime);	
+						}
+						previousTime = time(NULL);				
+						
+						if (secondTimer >= 1.0)
+						{
+							secondTimer -= 1.0;
+							framesPerSecond[seconds] = frameCounter;								
+							++seconds;				
+							frameCounter = 0;
+							
+							if (seconds == SIMULATION_LENGTH)
+							{
+								float sum = 0.0f;
+								int count = 0;
+								for (count = 0; count < SIMULATION_LENGTH; count++)
+								{
+									sum += framesPerSecond[count];
+								}
+																
+								averageFrames[runCount] = sum / (float)count;
+								running = 0;
+								runCount ++;								
+							}
 						}
 					}
 				}
 			}
 		}
+		printf( "Simulation complete.\n");
 	}
-	printf( "Simulation complete.\n");
+	
+	saveLogTofile(averageFrames);
+	printf( "Performance data saved to log file.\n");
 }

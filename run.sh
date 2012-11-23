@@ -5,5 +5,5 @@
 
 make clean
 make
-./Wator 
+./Wator
 cat Performance_data.log
