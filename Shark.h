@@ -19,6 +19,7 @@ typedef struct{
     int mStarveCounter;
     int mDead;
     int mFed;
+    int active;
 }Shark;
 
 
@@ -27,16 +28,17 @@ typedef struct{
  *  Creates a shark type on the heap and initlizes it.
  *  WARNING: The call is repsonisbly for freeing the memory after
  */
-Shark * sharkFactory(int x, int y)
+Shark sharkFactory(int x, int y)
 {
-       Shark * pShark =  malloc(sizeof(Shark));
-       pShark->pos.X = x;
-       pShark->pos.Y = y;
-       pShark->updated = 1;
-       pShark->mStarveCounter = 0;
-       pShark->mSpawnCounter = 0;
-       pShark->mDead = 0;
-       pShark->mFed = 0;
+       Shark  pShark;
+       pShark.pos.X = x;
+       pShark.pos.Y = y;
+       pShark.updated = 1;
+       pShark.mStarveCounter = 0;
+       pShark.mSpawnCounter = 0;
+       pShark.mDead = 0;
+       pShark.mFed = 0;
+       pShark.active = 0;
 
        return pShark;
 }

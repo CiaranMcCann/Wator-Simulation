@@ -25,7 +25,25 @@ GirdObj world[GRID_ROWS][GRID_COLUMNS ];
 
 GirdObj world[GRID_ROWS][GRID_COLUMNS ];
 Fish fishCollection[GRID_ROWS*GRID_COLUMNS];
+Shark sharksCollection[GRID_ROWS*GRID_COLUMNS];
 
+
+Shark * addShark( Shark s)
+{
+    s.active = 1; 
+
+    int i = 0;
+
+    //TODO omp for this bitch
+    for( i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
+    {
+        if(sharksCollection[i].active == 0)
+        {
+            sharksCollection[i] = s;
+            return &sharksCollection[i];
+        }
+    }
+}
 
 
 Fish * addFish(Fish f)
@@ -33,6 +51,8 @@ Fish * addFish(Fish f)
     f.active = 1;
 
     int i = 0;
+
+    //Loop till we fine a fish object which is not active and use that
     for(i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
     {
         if( fishCollection[i].active == 0 )
@@ -72,12 +92,11 @@ void _createAt(int x, int y, int fishFlag)
     {
         if(fishFlag)
         {
-            Fish * pFish = addFish(fishFactory(x,y));
-            world[x][y].pFish = pFish;
+            world[x][y].pFish = addFish(fishFactory(x,y));
         }
         else
         {
-            world[x][y].pShark = sharkFactory(x,y);
+            world[x][y].pShark = addShark(sharkFactory(x,y));
         }
     }
 }
@@ -118,14 +137,14 @@ void destroyAt(int x, int y)
 {
 	if(world[x][y].pFish)
 	{
-    	free(world[x][y].pFish);
-    	world[x][y].pFish = 0;
+    	//free(world[x][y].pFish);
+    	world[x][y].pFish->active = 0;
 
 	}
 	else if(world[x][y].pShark)
 	{
-    	free(world[x][y].pShark);
-    	world[x][y].pShark = 0;
+    	//free(world[x][y].pShark);
+    	world[x][y].pShark->active = 0;
 	}
 }
 
@@ -260,51 +279,74 @@ void updateWorld()
 {
 	    int y = 0;
 	    int x = 0;
-		  
+        
+
     #pragma omp parallel 
     {
+        int i = 0;
         #pragma omp for
-        for(y = 0; y < GRID_ROWS; y++)
-        {		
-            #pragma omp for
-            for(x = 0; x < GRID_COLUMNS; x++)
+        for(i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
+        {                
+               if( fishCollection[i].active == 0 )
+               {
+                 updateFish(fishCollection[i].pos.X, fishCollection[i].pos.Y, &fishCollection[i]);
+               }
+        }
+
+        int j = 0;
+        #pragma omp for
+        for (j = 0; j < GRID_ROWS*GRID_COLUMNS; j++)
+        {
+            if( sharksCollection[j].active == 0)
             {
-                if(world[x][y].pFish != 0) // Check if null
-                {
-                    updateFish(x, y, world[x][y].pFish);
-                }
-            	else if(world[x][y].pShark != 0) // Check if null
-                {
-                    updateShark(x, y, world[x][y].pShark);
-                }
+                updateShark(sharksCollection[j].pos.X, sharksCollection[j].pos.Y, &sharksCollection[j]);
             }
         }
+	}
+    // #pragma omp parallel 
+    // {
+    //     #pragma omp for
+    //     for(y = 0; y < GRID_ROWS; y++)
+    //     {		
+    //         #pragma omp for
+    //         for(x = 0; x < GRID_COLUMNS; x++)
+    //         {
+    //             if(world[x][y].pFish != 0) // Check if null
+    //             {
+    //                 updateFish(x, y, world[x][y].pFish);
+    //             }
+    //         	else if(world[x][y].pShark != 0) // Check if null
+    //             {
+    //                 updateShark(x, y, world[x][y].pShark);
+    //             }
+    //         }
+    //     }
    		
-        #pragma omp barrier
+    //     #pragma omp barrier
 
-        #pragma omp for
-        for(y = 0; y < GRID_ROWS; y++)
-        {
-        	#pragma omp for
-            for(x= 0; x < GRID_COLUMNS; x++)
-            {
-                if(world[x][y].pFish != 0)
-                {
-                    world[x][y].pFish->updated = 0;
-                }
-                else if(world[x][y].pShark != 0)
-                {
-                    world[x][y].pShark->updated = 0;
-                    // Check if the shark is dead
-                    if (world[x][y].pShark->mDead)
-                    {
-                        destroyAt(x, y);
-                    }
-                }
-            } // end for x
-        } // end for y
+    //     #pragma omp for
+    //     for(y = 0; y < GRID_ROWS; y++)
+    //     {
+    //     	#pragma omp for
+    //         for(x= 0; x < GRID_COLUMNS; x++)
+    //         {
+    //             if(world[x][y].pFish != 0)
+    //             {
+    //                 world[x][y].pFish->updated = 0;
+    //             }
+    //             else if(world[x][y].pShark != 0)
+    //             {
+    //                 world[x][y].pShark->updated = 0;
+    //                 // Check if the shark is dead
+    //                 if (world[x][y].pShark->mDead)
+    //                 {
+    //                     destroyAt(x, y);
+    //                 }
+    //             }
+    //         } // end for x
+    //     } // end for y
 
-    }
+    // }
 
 } // end updateWorld
 
