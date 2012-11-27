@@ -16,6 +16,7 @@
 typedef struct{
     GridPosition pos;
     int updated;  /*!< Bool flag - To stop a enity been updated twice */
+    int active;
     int mSpawnCounter;
 
 }Fish;
@@ -26,13 +27,14 @@ typedef struct{
  *  Creates a fish type on the heap and initlizes it.
  *  WARNING: The call is responsible for freeing the memory after
  */
-Fish * fishFactory(int x, int y)
+Fish fishFactory(int x, int y)
 {
-       Fish * pFish =  malloc(sizeof(Fish));
-       pFish->pos.X = x;
-       pFish->pos.Y = y;
-       pFish->updated = 1;
-       pFish->mSpawnCounter = 0;
+       Fish pFish;
+       pFish.pos.X = x;
+       pFish.pos.Y = y;
+       pFish.active = 0;
+       pFish.updated = 1;
+       pFish.mSpawnCounter = 0;
        return pFish;
 }
 

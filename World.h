@@ -23,6 +23,26 @@ typedef struct {
  // Array of GirdObjs which
 GirdObj world[GRID_ROWS][GRID_COLUMNS ];
 
+GirdObj world[GRID_ROWS][GRID_COLUMNS ];
+Fish fishCollection[GRID_ROWS*GRID_COLUMNS];
+
+
+
+Fish * addFish(Fish f)
+{
+    f.active = 1;
+
+    int i = 0;
+    for(i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
+    {
+        if( fishCollection[i].active == 0 )
+        {
+            fishCollection[i] = f;   
+            return &fishCollection[i];
+        }
+    }
+
+}
 
 /*! \brief Handles wrap around
  *
@@ -52,7 +72,8 @@ void _createAt(int x, int y, int fishFlag)
     {
         if(fishFlag)
         {
-            world[x][y].pFish = fishFactory(x,y);
+            Fish * pFish = addFish(fishFactory(x,y));
+            world[x][y].pFish = pFish;
         }
         else
         {
@@ -99,6 +120,7 @@ void destroyAt(int x, int y)
 	{
     	free(world[x][y].pFish);
     	world[x][y].pFish = 0;
+
 	}
 	else if(world[x][y].pShark)
 	{
@@ -137,6 +159,12 @@ void createSharkAt(int x, int y){
  */
 void populateWorld(int nFish, int nSharks)
 {
+    // int i = 0;
+    // for(i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
+    // {
+    //     fishCollection[i].mSpawnCounter;
+    // }
+
 	//    Its probably a good idea to emphasize that srand() should only be called once.
 	//    Also, in a threaded application, might want to make sure that the generator's
 	//    state is stored per thread, and seed the generator once for each thread.
