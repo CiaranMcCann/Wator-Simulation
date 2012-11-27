@@ -292,7 +292,7 @@ void updateWorld()
         #pragma omp for
         for(i = 0; i < FISH_LIST_LENGTH; i++)
         {                
-               if( fishCollection[i].active == 0 )
+               if( fishCollection[i].active == 1 )
                {
                  updateFish(fishCollection[i].pos.X, fishCollection[i].pos.Y, &fishCollection[i]);
                }
@@ -302,7 +302,7 @@ void updateWorld()
         #pragma omp for
         for (j = 0; j < SHARK_LIST_LENGTH; j++)
         {
-            if( sharksCollection[j].active == 0)
+            if( sharksCollection[j].active == 1)
             {
                 updateShark(sharksCollection[j].pos.X, sharksCollection[j].pos.Y, &sharksCollection[j]);
             }
