@@ -8,7 +8,9 @@
 #include "Shark.h"
 #include "Globals.h"
 #include <time.h>
+ #include <stdio.h>
 #include <stdlib.h>
+ #include <assert.h>
 
 /*! \brief Used to store pionters to either fish or sharks.
  *
@@ -24,8 +26,8 @@ typedef struct {
 GirdObj world[GRID_ROWS][GRID_COLUMNS ];
 
 GirdObj world[GRID_ROWS][GRID_COLUMNS ];
-Fish fishCollection[GRID_ROWS*GRID_COLUMNS];
-Shark sharksCollection[GRID_ROWS*GRID_COLUMNS];
+Fish fishCollection[FISH_LIST_LENGTH];
+Shark sharksCollection[SHARK_LIST_LENGTH];
 
 
 Shark * addShark( Shark s)
@@ -35,7 +37,7 @@ Shark * addShark( Shark s)
     int i = 0;
 
     //TODO omp for this bitch
-    for( i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
+    for( i = 0; i < SHARK_LIST_LENGTH; i++)
     {
         if(sharksCollection[i].active == 0)
         {
@@ -43,6 +45,7 @@ Shark * addShark( Shark s)
             return &sharksCollection[i];
         }
     }
+    assert( 1 == 2);
 }
 
 
@@ -53,14 +56,16 @@ Fish * addFish(Fish f)
     int i = 0;
 
     //Loop till we fine a fish object which is not active and use that
-    for(i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
+    for(i = 0; i < FISH_LIST_LENGTH; i++)
     {
         if( fishCollection[i].active == 0 )
         {
             fishCollection[i] = f;   
             return &fishCollection[i];
+
         }
     }
+     assert( 1 == 2);
 
 }
 
@@ -285,7 +290,7 @@ void updateWorld()
     {
         int i = 0;
         #pragma omp for
-        for(i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
+        for(i = 0; i < FISH_LIST_LENGTH; i++)
         {                
                if( fishCollection[i].active == 0 )
                {
@@ -295,7 +300,7 @@ void updateWorld()
 
         int j = 0;
         #pragma omp for
-        for (j = 0; j < GRID_ROWS*GRID_COLUMNS; j++)
+        for (j = 0; j < SHARK_LIST_LENGTH; j++)
         {
             if( sharksCollection[j].active == 0)
             {
