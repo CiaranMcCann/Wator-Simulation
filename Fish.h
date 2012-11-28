@@ -15,8 +15,8 @@
  */
 typedef struct{
     GridPosition pos;
-    int updated;  /*!< Bool flag - To stop a enity been updated twice */
-    int mSpawnCounter;
+    short updated;  /*!< Bool flag - To stop a enity been updated twice */
+    short mSpawnCounter;
 
 }Fish;
 
@@ -26,7 +26,7 @@ typedef struct{
  *  Creates a fish type on the heap and initlizes it.
  *  WARNING: The call is responsible for freeing the memory after
  */
-Fish * fishFactory(int x, int y)
+Fish * fishFactory(short x, short y)
 {
        Fish * pFish =  malloc(sizeof(Fish));
        pFish->pos.X = x;
@@ -40,11 +40,11 @@ Fish * fishFactory(int x, int y)
  *  Update the fish spawncounter by 1
  *  If the spawnrate equals the counter create a new fish in the new position. 
  *  
- *  @param int x The x position of the tile
- *  @param int y The x position of the tile
- *  @param Fish *fish Pointer to the current fish
+ *  @param short x The x position of the tile
+ *  @param short y The x position of the tile
+ *  @param Fish *fish Poshorter to the current fish
  */
-void moveFish(int x, int y, Fish *fish)
+void moveFish(short x, short y, Fish *fish)
 {
     fish->mSpawnCounter +=1;
 
@@ -69,18 +69,18 @@ void moveFish(int x, int y, Fish *fish)
  *  If the available directions is greater than 0 then a move is possible
  *  Pick a random number from the available directions and pass that to a switch statement
  *  Finally call movefish using the chosen direction
- *  @param int x The x position of the tile
- *  @param int y The y position of the tile
- *  @param Fish *fish Pointer to the current fish
+ *  @param short x The x position of the tile
+ *  @param short y The y position of the tile
+ *  @param Fish *fish Poshorter to the current fish
  */
-void updateFish(int x, int y, Fish *pFish)
+void updateFish(short x, short y, Fish *pFish)
 {
     // Make sure updated is set to 0 
     if (pFish->updated == 1)
         return;
 
     char direction[4];
-    int available = 0; //!< Number of available directions
+    short available = 0; //!< Number of available directions
 
     // Add all available directions to a char array
     // Increase the available parameter

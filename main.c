@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <time.h>
 
+short checkTileForEntity(short x, short y);
+short checkTileForShark(short x, short y);
+short checkTileForFish(short x, short y);
+
 #include "Globals.h"
 #include "GridPosition.h"
 #include "Drawing.h"
@@ -54,8 +58,8 @@ int saveLogTofile(float * averageFrameLog)
 	fprintf( pFile, "#Min	#Max	#Average\n"); 
 	fprintf( pLogFile, "#Min	#Max	#Average\n"); 
 		
-	fprintf( pFile, "%f%c%f%c%f\n",  minimum,' \t', maximum, ' \t', average); 
-	fprintf( pLogFile, "%f%c%f%c%f\n",  minimum, ' \t', maximum, ' \t', average); 
+	fprintf( pFile, "%f%s%f%s%f\n",  minimum,"\t", maximum, "\t", average); 
+	fprintf( pLogFile, "%f%s%f%s%f\n",  minimum, "\t", maximum, "\t", average); 
 	
 	close( pLogFile );
 	close( pFile );
@@ -66,7 +70,7 @@ int saveLogTofile(float * averageFrameLog)
 int main(int argc, char *argv[])
 {
 	omp_set_num_threads(numThreads);
-	
+			
 	int runCount = 0;	
 	float averageFrames[NUMBER_OF_RUNS];
 	

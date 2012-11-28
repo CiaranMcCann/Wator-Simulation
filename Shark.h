@@ -14,11 +14,11 @@
  */
 typedef struct{
     GridPosition pos;
-    int updated;  /*!< Bool flag - To stop a enity been updated twice */
-    int mSpawnCounter;
-    int mStarveCounter;
-    int mDead;
-    int mFed;
+    short updated;  /*!< Bool flag - To stop a enity been updated twice */
+    short mSpawnCounter;
+    short mStarveCounter;
+    short mDead;
+    short mFed;
 }Shark;
 
 
@@ -27,7 +27,7 @@ typedef struct{
  *  Creates a shark type on the heap and initlizes it.
  *  WARNING: The call is repsonisbly for freeing the memory after
  */
-Shark * sharkFactory(int x, int y)
+Shark * sharkFactory(short x, short y)
 {
        Shark * pShark =  malloc(sizeof(Shark));
        pShark->pos.X = x;
@@ -46,9 +46,9 @@ Shark * sharkFactory(int x, int y)
  *
  *  \param x The X position of the shark
  *  \param y The Y position of the shark
- *  \param pShark The pointer to the shark to be moved
+ *  \param pShark The poshorter to the shark to be moved
 */
-void sharkMove(int x, int y, Shark * pShark)
+void sharkMove(short x, short y, Shark * pShark)
 {
     pShark->mSpawnCounter += 1;
     pShark->mStarveCounter += 1;
@@ -76,15 +76,15 @@ void sharkMove(int x, int y, Shark * pShark)
 /*!
  *  \brief Function for the shark to hunt for fish
  *
- *  \param pShark The pointer to the shark to be moved
+ *  \param pShark The poshorter to the shark to be moved
 */
 void sharkHunt(Shark * pShark)
 {
 	char dir[4];
-	int i = 0;
+	short i = 0;
 
-	int x = pShark->pos.X;
-	int y = pShark->pos.Y;
+	short x = pShark->pos.X;
+	short y = pShark->pos.Y;
 
 	if (checkTileForFish(x, y + 1) == 1)
 	{
@@ -143,9 +143,9 @@ void sharkHunt(Shark * pShark)
  *
  *  \param x The X position of the shark
  *  \param y The Y position of the shark
- *  \param pShark The pointer to the shark to be moved
+ *  \param pShark The poshorter to the shark to be moved
 */
-void updateShark(int x, int y, Shark * pShark)
+void updateShark(short x, short y, Shark * pShark)
 {
     // Make sure not to update twice
     if (pShark->updated == 1)
@@ -156,7 +156,7 @@ void updateShark(int x, int y, Shark * pShark)
     if (pShark->mFed == 0)
     {
     	char dir[4];
-		int i = 0;
+		short i = 0;
 
 
 		if (checkTileForShark(x, y + 1) == 0)
@@ -185,7 +185,6 @@ void updateShark(int x, int y, Shark * pShark)
 			i = rand() % i;
 			x = pShark->pos.X;
 			y = pShark->pos.Y;
-
 
 			switch( dir[i] )
         	{
