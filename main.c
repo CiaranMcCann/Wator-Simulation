@@ -25,7 +25,7 @@ short checkTileForFish(short x, short y);
 int saveLogTofile(float * averageFrameLog)
 {
 	char name [50];
-	
+
 	float minimum = 10000000.0f;
 	float maximum = 0.0f;
 	float average = 0.0f;
@@ -70,14 +70,17 @@ int saveLogTofile(float * averageFrameLog)
 int main(int argc, char *argv[])
 {
 	omp_set_num_threads(numThreads);
-			
+	omp_set_nested(1);
+	
+	printf("%d\n", omp_get_max_active_levels());
+	
 	int runCount = 0;	
 	float averageFrames[NUMBER_OF_RUNS];
 	
 	while (runCount < NUMBER_OF_RUNS)
 	{
 		printf( "Simulation will run for %d seconds.\n", SIMULATION_LENGTH );
-				
+		
 		int running= 1;
 		int seconds = 0;
 		double secondTimer = 0.0;
@@ -91,6 +94,7 @@ int main(int argc, char *argv[])
 		if (InitializeOpenGL())
 		{
 			int count = 0;
+			
 			while (running)
 			{
 				++count;

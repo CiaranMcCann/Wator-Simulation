@@ -8,7 +8,7 @@
 float const WindowHeight = 800.0f;	/*!< The height of the window to create. */
 float const WindowWidth = 800.0f;	/*!< The width of the window to create. */
 
-int numThreads = 1;		/*!< The number of threads to use.*/
+int numThreads = 4;		/*!< The number of threads to use.*/
 
 #define NUMBER_OF_RUNS 4		/*!< The number of times the simulation should run. */
 

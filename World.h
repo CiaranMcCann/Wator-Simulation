@@ -229,15 +229,15 @@ short checkTileForFish(short x, short y)
 /*! update
  */
 void updateWorld()
-{
-	short y = 0;
-	short x = 0;
-		  
+{		  
 	#pragma omp parallel
 	{
-		#pragma omp for collapse(2)
+		short y = 0;
+		short x = 0;
+		#pragma omp for private(x, y)
 		for(y = 0; y < GRID_ROWS; y++)
 		{
+			#pragma omp privatefirst(y) for private(GRID_COLUMNS)
 			for(x = 0; x < GRID_COLUMNS; x++)
 			{
 				if(world[x][y].pFish != 0) // Check if null
@@ -253,9 +253,10 @@ void updateWorld()
 		
 		#pragma omp barrier
 
-		#pragma omp for collapse(2)
+		#pragma omp for private(x, y)
 		for(y = 0; y < GRID_ROWS; y++)
 		{
+			#pragma omp privatefirst(y) for private(GRID_COLUMNS)
 			for(x= 0; x < GRID_COLUMNS; x++)
 			{
 				if(world[x][y].pFish != 0)
