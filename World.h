@@ -114,30 +114,35 @@ void populateWorld(short nFish, short nSharks)
     short y = 0;
     short i = 0; //C90 standard doesn't allow loop var declaration inside loop
 
-    for(y = 0; y < GRID_ROWS; y++)
+    #pragma omp parallel
     {
-        for(x= 0; x < GRID_COLUMNS; x++)
-        {            
-        	fishCollection[(GRID_COLUMNS * y) + x] = fishFactory(x, y);
-        	sharksCollection[(GRID_COLUMNS * y) + x] = sharkFactory(x, y);
-        } // end for x
-    } // end for y
-
-    for(i = 0; i < total; i++)
-    {
-        x = rand() % GRID_ROWS;
-        y = rand() % GRID_COLUMNS;
-
-        if(i < nFish)
+        #pragma omp for collapse(2)
+        for(y = 0; y < GRID_ROWS; y++)
         {
-            //continue with popluating fish
-            fishCollection[(GRID_COLUMNS * y) + x].active = 1;
-        }
-        else
+            for(x= 0; x < GRID_COLUMNS; x++)
+            {            
+            	fishCollection[(GRID_COLUMNS * y) + x] = fishFactory(x, y);
+            	sharksCollection[(GRID_COLUMNS * y) + x] = sharkFactory(x, y);
+            } // end for x
+        } // end for y
+
+        #pragma omp for
+        for(i = 0; i < total; i++)
         {
-            // once all fish done popluate sharks
-            fishCollection[(GRID_COLUMNS * y) + x].active = 0;
-            sharksCollection[(GRID_COLUMNS * y) + x].active = 1;
+            x = rand() % GRID_ROWS;
+            y = rand() % GRID_COLUMNS;
+
+            if(i < nFish)
+            {
+                //continue with popluating fish
+                fishCollection[(GRID_COLUMNS * y) + x].active = 1;
+            }
+            else
+            {
+                // once all fish done popluate sharks
+                fishCollection[(GRID_COLUMNS * y) + x].active = 0;
+                sharksCollection[(GRID_COLUMNS * y) + x].active = 1;
+            }
         }
     }
 }
@@ -195,20 +200,25 @@ char checkTileForFish(short x, short y)
 void updateWorld()
 {
 	short y = 0;
-	short x = 0;        
-
-    for(y = 0; y < GRID_ROWS; y++)
+    short x = 0;
+    int count = 0;
+    #pragma omp parallel for
+    for(count = 0; count < SHARK_LIST_LENGTH; ++count)
     {
-        for(x= 0; x < GRID_COLUMNS; x++)
-        { 
-        	if (fishCollection[(GRID_COLUMNS * y) + x].active == 1)
-        	{
-                updateFish(x, y, &fishCollection[(GRID_COLUMNS * y) + x]);
-        	}
-            else if (sharksCollection[(GRID_COLUMNS * y) + x].active == 1)
-            {
-                updateShark(x, y, &sharksCollection[(GRID_COLUMNS * y) + x]);
-            }
+        if (fishCollection[(GRID_COLUMNS * y) + x].active == 1)
+        {
+            updateFish(x, y, &fishCollection[(GRID_COLUMNS * y) + x]);
+        }
+        else if (sharksCollection[(GRID_COLUMNS * y) + x].active == 1)
+        {
+            updateShark(x, y, &sharksCollection[(GRID_COLUMNS * y) + x]);
+        }
+
+        ++x;
+        if ((count + 1) % GRID_COLUMNS == 0)
+        {
+            x = 0;
+            ++y;
         }
     }
 }
