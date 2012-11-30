@@ -33,7 +33,7 @@ Shark sharkFactory(short x, short y)
        Shark  pShark;
        pShark.pos.X = x;
        pShark.pos.Y = y;
-       pShark.updated = 1;
+       pShark.updated = 0;
        pShark.mStarveCounter = 0;
        pShark.mSpawnCounter = 0;
        pShark.mDead = 0;
@@ -150,8 +150,8 @@ void sharkHunt(Shark * pShark)
 void updateShark(short x, short y, Shark * pShark)
 {
     // Make sure not to update twice
-    if (pShark->updated == 1)
-        return;
+    //if (pShark->updated == 1)
+     //   return;
 
     sharkHunt(pShark);
 
@@ -217,7 +217,7 @@ void updateShark(short x, short y, Shark * pShark)
     	pShark->mStarveCounter = 0;
     }
 
-    pShark->updated = 1;
+    //pShark->updated = 1;
     pShark->mFed = 0;
 }
 

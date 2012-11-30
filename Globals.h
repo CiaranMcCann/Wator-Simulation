@@ -22,10 +22,10 @@ int numThreads = 8;		/*!< The number of threads to use.*/
 #define SHARK_SPAWNRATE 7	/*!< The number of updates which must occur before a shark can spawn. */
 #define SHARK_STARVERATE 6	/*!< The number of updates which must occur before a shark will die of starvation. */
 
-#define DRAW_GRID 1/*!< Whether the grid should be drawn or not. */
+#define DRAW_GRID 0/*!< Whether the grid should be drawn or not. */
 #define SIMULATION_LENGTH  5	/*!< The number of seconds to run for, when benchmarking. */
 
-#define SHARK_LIST_LENGTH (GRID_ROWS*GRID_COLUMNS)/2
+#define SHARK_LIST_LENGTH (GRID_ROWS*GRID_COLUMNS)
 #define FISH_LIST_LENGTH (GRID_ROWS*GRID_COLUMNS)
 
 #endif

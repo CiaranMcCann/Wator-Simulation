@@ -145,6 +145,8 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
+		
+		cleanWorld();
 		printf( "Simulation complete.\n");
 	}
 	

@@ -33,7 +33,7 @@ Fish fishFactory(short x, short y)
        pFish.pos.X = x;
        pFish.pos.Y = y;
        pFish.active = 0;
-       pFish.updated = 1;
+       pFish.updated = 0;
        pFish.mSpawnCounter = 0;
        return pFish;
 }
@@ -53,7 +53,7 @@ void moveFish(short x, short y, Fish *fish)
     if(fish->mSpawnCounter==FISH_SPAWNRATE)
     {
         fish->mSpawnCounter=0;
-        createFishAt(x,y);
+        activeFishAt(x,y);
     }
     else
     {
@@ -78,8 +78,8 @@ void moveFish(short x, short y, Fish *fish)
 void updateFish(short x, short y, Fish *pFish)
 {
     // Make sure updated is set to 0 
-    if (pFish->updated == 1)
-        return;
+    //if (pFish->updated == 1)
+     //   return;
 
     char direction[4];
     short available = 0; //!< Number of available directions

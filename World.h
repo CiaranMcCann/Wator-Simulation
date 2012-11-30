@@ -8,9 +8,9 @@
 #include "Shark.h"
 #include "Globals.h"
 #include <time.h>
- #include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
- #include <assert.h>
+#include <assert.h>
 
 /*! \brief Used to store pionters to either fish or sharks.
  *
@@ -21,6 +21,16 @@ typedef struct {
     Fish * pFish;
     Shark * pShark;
 } GirdObj;
+
+GirdObj GridObjFactory()
+{
+	GirdObj g;
+	g.pFish = 0;
+	g.pShark = 0;
+
+	return g;
+}
+
 
  // Array of GirdObjs which
 GirdObj world[GRID_ROWS][GRID_COLUMNS ];
@@ -39,6 +49,7 @@ Shark * addShark( Shark s)
     //TODO omp for this bitch
     for( i = 0; i < SHARK_LIST_LENGTH; i++)
     {
+    	// find a shark thats not active and overwrite it
         if(sharksCollection[i].active == 0)
         {
             sharksCollection[i] = s;
@@ -60,6 +71,7 @@ Fish * addFish(Fish f)
     {
         if( fishCollection[i].active == 0 )
         {
+        	//TODO just overwrite x, y etc instead of making new object
             fishCollection[i] = f;   
             return &fishCollection[i];
 
@@ -91,8 +103,9 @@ void manageWrapAround(short * x, short * y)
  *
  * Function only really exists because as a user I hate short flags
  */
-void _createAt(short x, short y, short fishFlag)
+void _activeAt(short x, short y, short fishFlag)
 {
+	//if( world[x][y].pFish.active == 0 &&  world[x][y].pShark.active == 0)
     if( world[x][y].pFish == 0 &&  world[x][y].pShark == 0)
     {
         if(fishFlag)
@@ -160,8 +173,8 @@ void destroyAt(short x, short y)
  *  \param x - index shorto array
  *  \param y - index shorto array
  */
-void createFishAt(short x, short y){
-    _createAt(x,y,1);
+void activeFishAt(short x, short y){
+    _activeAt(x,y,1);
 }
 
 /*! \brief Creates shark at given [x][y]
@@ -192,15 +205,30 @@ void populateWorld(short nFish, short nSharks)
 	//    Its probably a good idea to emphasize that srand() should only be called once.
 	//    Also, in a threaded application, might want to make sure that the generator's
 	//    state is stored per thread, and seed the generator once for each thread.
-	#pragma omp parallel
-    {
+	//#pragma omp parallel
+    //{
     	srand(time(NULL));
 	    short total = nFish + nSharks;
 	    short x = 0;
 	    short y = 0;
 	    short i = 0; //C90 standard doesn't allow loop var declaration inside loop
 
-    	#pragma omp for
+	    for(y = 0; y < GRID_ROWS; y++)
+	    {
+	    	//#pragma omp for
+	        for(x= 0; x < GRID_COLUMNS; x++)
+	        {
+	            
+	        	fishCollection[(GRID_COLUMNS * y) + x] = fishFactory(-1,-1);
+	        	world[x][y] = GridObjFactory();
+
+	        	sharksCollection[(GRID_COLUMNS * y) + x] = sharkFactory(-1,-1);
+
+	        } // end for x
+	    } // end for y
+
+
+    	//#pragma omp for
 	    for(i = 0; i < total; i++)
 	    {
 	        x = rand() % GRID_ROWS;
@@ -209,15 +237,21 @@ void populateWorld(short nFish, short nSharks)
 	        if(i < nFish)
 	        {
 	            //continue with popluating fish
-	            createFishAt(x,y);
+	            fishCollection[i].pos.X = x;
+	            fishCollection[i].pos.Y = y;
+	            fishCollection[i].active = 1;
+	            world[x][y].pFish = &fishCollection[i];
 	        }
 	        else
 	        {
 	            // once all fish done popluate sharks
-	            createSharkAt(x,y);
+	            sharksCollection[i].pos.X = x;
+	            sharksCollection[i].pos.Y = y;
+	            sharksCollection[i].active = 1;
+	            world[x][y].pShark = &sharksCollection[i];
 	        }
 	    }
-	}
+	//}
 }
 
 /*! \ Checks a tile to see if it contains fish or shark
@@ -286,10 +320,10 @@ void updateWorld()
 	int x = 0;
         
 
-    #pragma omp parallel 
-    {
+    //#pragma omp parallel 
+    //{
         int i = 0;
-        #pragma omp for
+       // #pragma omp for
         for(i = 0; i < FISH_LIST_LENGTH; i++)
         {                
                if( fishCollection[i].active == 1 )
@@ -299,7 +333,7 @@ void updateWorld()
         }
 
         int j = 0;
-        #pragma omp for
+        //#pragma omp for
         for (j = 0; j < SHARK_LIST_LENGTH; j++)
         {
             if( sharksCollection[j].active == 1)
@@ -307,7 +341,7 @@ void updateWorld()
                 updateShark(sharksCollection[j].pos.X, sharksCollection[j].pos.Y, &sharksCollection[j]);
             }
         }
-	}
+	//}
     // #pragma omp parallel 
     // {
     //     #pragma omp for
@@ -361,7 +395,6 @@ void drawWorld()
 {
 
 	     int i = 0;
-        #pragma omp for
         for(i = 0; i < FISH_LIST_LENGTH; i++)
         {                
                if( fishCollection[i].active == 1 )
@@ -371,12 +404,11 @@ void drawWorld()
         }
 
         int j = 0;
-        #pragma omp for
         for (j = 0; j < SHARK_LIST_LENGTH; j++)
         {
             if( sharksCollection[j].active == 1)
             {
-                DrawSharkAt(fishCollection[i].pos);
+                DrawSharkAt(sharksCollection[j].pos);
             }
         }
 
@@ -410,15 +442,19 @@ void drawWorld()
  */
 void cleanWorld(){
 
-	short y = 0;
-	short x = 0;
-	for(x = 0; x < GRID_COLUMNS; x++)
-	{
-		for(y = 0; y < GRID_ROWS; y++)
-		{
-		    destroyAt(x,y);
-		}
-	}
+	// short y = 0;
+	// short x = 0;
+	// for(x = 0; x < GRID_COLUMNS; x++)
+	// {
+	// 	for(y = 0; y < GRID_ROWS; y++)
+	// 	{
+	// 	    destroyAt(x,y);
+	// 	}
+	// }
+
+	// fishCollection = Fish[FISH_LIST_LENGTH];
+	// sharksCollection = Shark[SHARK_LIST_LENGTH];
+	// world = GirdObj[GRID_ROWS][GRID_COLUMNS ];
 }
 
 
