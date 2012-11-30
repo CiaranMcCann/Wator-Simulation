@@ -33,6 +33,7 @@ Fish * fishFactory(short x, short y)
        pFish->pos.Y = y;
        pFish->updated = 1;
        pFish->mSpawnCounter = 0;
+       
        return pFish;
 }
 

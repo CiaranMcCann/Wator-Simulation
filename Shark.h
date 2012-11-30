@@ -14,11 +14,10 @@
  */
 typedef struct{
     GridPosition pos;
-    short updated;  /*!< Bool flag - To stop a enity been updated twice */
-    short mSpawnCounter;
-    short mStarveCounter;
-    short mDead;
-    short mFed;
+    char updated;  /*!< Bool flag - To stop a enity been updated twice */
+    char mSpawnCounter;
+    char mStarveCounter;
+    char mDead;
 }Shark;
 
 
@@ -36,8 +35,6 @@ Shark * sharkFactory(short x, short y)
        pShark->mStarveCounter = 0;
        pShark->mSpawnCounter = 0;
        pShark->mDead = 0;
-       pShark->mFed = 0;
-
        return pShark;
 }
 
@@ -78,10 +75,10 @@ void sharkMove(short x, short y, Shark * pShark)
  *
  *  \param pShark The poshorter to the shark to be moved
 */
-void sharkHunt(Shark * pShark)
+char sharkHunt(Shark * pShark)
 {
 	char dir[4];
-	short i = 0;
+	char i = 0;
 
 	short x = pShark->pos.X;
 	short y = pShark->pos.Y;
@@ -133,9 +130,10 @@ void sharkHunt(Shark * pShark)
 		manageWrapAround(&x, &y);
 		destroyAt(x, y);
 		sharkMove(x, y, pShark);
-		pShark->mFed = 1;
+		return 1;
 	}
 
+	return 0;
 }
 
 /*!
@@ -151,12 +149,10 @@ void updateShark(short x, short y, Shark * pShark)
     if (pShark->updated == 1)
         return;
 
-    sharkHunt(pShark);
-
-    if (pShark->mFed == 0)
+    if (sharkHunt(pShark) == 0)
     {
     	char dir[4];
-		short i = 0;
+		char i = 0;
 
 
 		if (checkTileForShark(x, y + 1) == 0)
@@ -216,7 +212,6 @@ void updateShark(short x, short y, Shark * pShark)
     }
 
     pShark->updated = 1;
-    pShark->mFed = 0;
 }
 
 #endif
