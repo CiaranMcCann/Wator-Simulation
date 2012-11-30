@@ -233,50 +233,50 @@ void updateWorld()
 	    int y = 0;
 	    int x = 0;
 		  
-    #pragma omp parallel 
-    {
-        #pragma omp for
-        for(y = 0; y < GRID_ROWS; y++)
-        {		
-            #pragma omp for
-            for(x = 0; x < GRID_COLUMNS; x++)
-            {
-                if(world[x][y].pFish != 0) // Check if null
-                {
-                    updateFish(x, y, world[x][y].pFish);
-                }
-            	else if(world[x][y].pShark != 0) // Check if null
-                {
-                    updateShark(x, y, world[x][y].pShark);
-                }
-            }
-        }
-   		
-        #pragma omp barrier
+	#pragma omp parallel 
+	{
+		#pragma omp for private(x, y)
+		for(y = 0; y < GRID_ROWS; y++)
+		{		
+			#pragma omp privatefirst(x) for private(GRID_COLUMNS)
+			for(x = 0; x < GRID_COLUMNS; x++)
+			{
+				if(world[x][y].pFish != 0) // Check if null
+				{
+					updateFish(x, y, world[x][y].pFish);
+				}
+				else if(world[x][y].pShark != 0) // Check if null
+				{
+					updateShark(x, y, world[x][y].pShark);
+				}
+			}
+		}
 
-        #pragma omp for
-        for(y = 0; y < GRID_ROWS; y++)
-        {
-        	#pragma omp for
-            for(x= 0; x < GRID_COLUMNS; x++)
-            {
-                if(world[x][y].pFish != 0)
-                {
-                    world[x][y].pFish->updated = 0;
-                }
-                else if(world[x][y].pShark != 0)
-                {
-                    world[x][y].pShark->updated = 0;
-                    // Check if the shark is dead
-                    if (world[x][y].pShark->mDead)
-                    {
-                        destroyAt(x, y);
-                    }
-                }
-            } // end for x
-        } // end for y
+		#pragma omp barrier
 
-    }
+		#pragma omp for private(x, y)
+		for(y = 0; y < GRID_ROWS; y++)
+		{
+			#pragma omp privatefirst(x) for private(GRID_COLUMNS)
+			for(x= 0; x < GRID_COLUMNS; x++)
+			{
+				if(world[x][y].pFish != 0)
+				{
+				world[x][y].pFish->updated = 0;
+				}
+				else if(world[x][y].pShark != 0)
+				{
+					world[x][y].pShark->updated = 0;
+					// Check if the shark is dead
+					if (world[x][y].pShark->mDead)
+					{
+					destroyAt(x, y);
+					}
+				}
+			} // end for x
+		} // end for y
+
+	}
 
 } // end updateWorld
 
