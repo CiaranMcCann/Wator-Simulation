@@ -73,7 +73,7 @@ Fish * addFish(Fish f)
  *
  *  \returns A grid position in the bounds of the world
 */
-void manageWrapAround(int * x, int * y)
+void manageWrapAround(short * x, short * y)
 {
     if (*x < 0)
         *x = GRID_COLUMNS - 1;
@@ -89,9 +89,9 @@ void manageWrapAround(int * x, int * y)
 
 /*! \brief Creates either a fish or a shark.
  *
- * Function only really exists because as a user I hate int flags
+ * Function only really exists because as a user I hate short flags
  */
-void _createAt(int x, int y, int fishFlag)
+void _createAt(short x, short y, short fishFlag)
 {
     if( world[x][y].pFish == 0 &&  world[x][y].pShark == 0)
     {
@@ -135,10 +135,10 @@ void moveSharkPointerTo(GridPosition newPos, Shark *pShark)
 /*! \brief Destories the enity at given grid location
  *
  *  Destories the enity at given grid location and frees memory
- *  \param x - index into array
- *  \param y - index into array
+ *  \param x - index shorto array
+ *  \param y - index shorto array
  */
-void destroyAt(int x, int y)
+void destroyAt(short x, short y)
 {
 	if(world[x][y].pFish)
 	{
@@ -157,20 +157,20 @@ void destroyAt(int x, int y)
 /*! \brief Creates fish at given [x][y]
  *
  *  Creates fish at given [x][y]
- *  \param x - index into array
- *  \param y - index into array
+ *  \param x - index shorto array
+ *  \param y - index shorto array
  */
-void createFishAt(int x, int y){
+void createFishAt(short x, short y){
     _createAt(x,y,1);
 }
 
 /*! \brief Creates shark at given [x][y]
  *
  *  Creates shark at given [x][y]
- *  \param x - index into array
- *  \param y - index into array
+ *  \param x - index shorto array
+ *  \param y - index shorto array
  */
-void createSharkAt(int x, int y){
+void createSharkAt(short x, short y){
     _createAt(x,y,0);
 }
 
@@ -181,7 +181,7 @@ void createSharkAt(int x, int y){
  *  \param nFish - Number of fish
  *  \param nShark - Number of sharks
  */
-void populateWorld(int nFish, int nSharks)
+void populateWorld(short nFish, short nSharks)
 {
     // int i = 0;
     // for(i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
@@ -195,10 +195,10 @@ void populateWorld(int nFish, int nSharks)
 	#pragma omp parallel
     {
     	srand(time(NULL));
-	    int total = nFish + nSharks;
-	    int x = 0;
-	    int y = 0;
-	    int i = 0; //C90 standard doesn't allow loop var declaration inside loop
+	    short total = nFish + nSharks;
+	    short x = 0;
+	    short y = 0;
+	    short i = 0; //C90 standard doesn't allow loop var declaration inside loop
 
     	#pragma omp for
 	    for(i = 0; i < total; i++)
@@ -225,9 +225,9 @@ void populateWorld(int nFish, int nSharks)
  *  This will only work for fish so may rename to checkTileFish or somesuch
  *
  */
-int checkTileForEntity(int x, int y)
+short checkTileForEntity(short x, short y)
 {
-    int i = 0;
+    short i = 0;
 
     if (x < 0) // handle wrap around
         x = GRID_COLUMNS - 1;
@@ -246,12 +246,12 @@ int checkTileForEntity(int x, int y)
 }
 
 /*
- * Checks if there is a shark int a tile
- * @param int x The x position of the tile
- * @param int y The y position of the tile
+ * Checks if there is a shark short a tile
+ * @param short x The x position of the tile
+ * @param short y The y position of the tile
  * @returns True for shark, false otherwise
  */
-int checkTileForShark(int x, int y)
+short checkTileForShark(short x, short y)
 {
     manageWrapAround(&x, &y);
 
@@ -262,12 +262,12 @@ int checkTileForShark(int x, int y)
 }
 
 /*
- * Checks if there is a shark int a tile
- * @param int x The x position of the tile
- * @param int y The y position of the tile
- * @returns The pointer to the fish in the tile or null
+ * Checks if there is a shark short a tile
+ * @param short x The x position of the tile
+ * @param short y The y position of the tile
+ * @returns The poshorter to the fish in the tile or null
  */
-int checkTileForFish(int x, int y)
+short checkTileForFish(short x, short y)
 {
     manageWrapAround(&x, &y);
 
@@ -352,16 +352,15 @@ void updateWorld()
     //     } // end for y
 
     // }
-
-} // end updateWorld
+}
 
 
 /*! \brief Draws the world
  */
 void drawWorld()
 {
-    int y = 0;
-    int x = 0;
+    short y = 0;
+    short x = 0;
     for(x = 0; x < GRID_COLUMNS; x++)
     {
         for(y = 0; y < GRID_ROWS; y++)
@@ -384,13 +383,13 @@ void drawWorld()
 /*! \brief Destroys the enity at given grid location
  *
  *  Destroys the enity at given grid location
- *  @param x - index into array
- *  @param y - index into array
+ *  @param x - index shorto array
+ *  @param y - index shorto array
  */
 void cleanWorld(){
 
-	int y = 0;
-	int x = 0;
+	short y = 0;
+	short x = 0;
 	for(x = 0; x < GRID_COLUMNS; x++)
 	{
 		for(y = 0; y < GRID_ROWS; y++)

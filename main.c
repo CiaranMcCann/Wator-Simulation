@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <time.h>
 
+short checkTileForEntity(short x, short y);
+short checkTileForShark(short x, short y);
+short checkTileForFish(short x, short y);
+
 #include "Globals.h"
 #include "GridPosition.h"
 #include "Drawing.h"
@@ -21,7 +25,7 @@
 int saveLogTofile(float * averageFrameLog)
 {
 	char name [50];
-	
+
 	float minimum = 10000000.0f;
 	float maximum = 0.0f;
 	float average = 0.0f;
@@ -54,8 +58,8 @@ int saveLogTofile(float * averageFrameLog)
 	fprintf( pFile, "#Min	#Max	#Average\n"); 
 	fprintf( pLogFile, "#Min	#Max	#Average\n"); 
 		
-	fprintf( pFile, "%f%c%f%c%f\n",  minimum,' \t', maximum, ' \t', average); 
-	fprintf( pLogFile, "%f%c%f%c%f\n",  minimum, ' \t', maximum, ' \t', average); 
+	fprintf( pFile, "%f%s%f%s%f\n",  minimum,"\t", maximum, "\t", average); 
+	fprintf( pLogFile, "%f%s%f%s%f\n",  minimum, "\t", maximum, "\t", average); 
 	
 	close( pLogFile );
 	close( pFile );
@@ -66,6 +70,9 @@ int saveLogTofile(float * averageFrameLog)
 int main(int argc, char *argv[])
 {
 	omp_set_num_threads(numThreads);
+	omp_set_nested(1);
+	
+	printf("%d\n", omp_get_max_active_levels());
 	
 	int runCount = 0;	
 	float averageFrames[NUMBER_OF_RUNS];
@@ -73,7 +80,7 @@ int main(int argc, char *argv[])
 	while (runCount < NUMBER_OF_RUNS)
 	{
 		printf( "Simulation will run for %d seconds.\n", SIMULATION_LENGTH );
-				
+		
 		int running= 1;
 		int seconds = 0;
 		double secondTimer = 0.0;
@@ -87,6 +94,7 @@ int main(int argc, char *argv[])
 		if (InitializeOpenGL())
 		{
 			int count = 0;
+			
 			while (running)
 			{
 				++count;

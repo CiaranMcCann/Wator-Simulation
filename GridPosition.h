@@ -11,8 +11,8 @@
  *  A simple structure which defines a position in a 2D coordinate system.
  */
 typedef struct{
-	int X;	/*!< The column number of the position. */
-	int Y;	/*!< The row number of the position. */
+	short X;	/*!< The column number of the position. */
+	short Y;	/*!< The row number of the position. */
 }GridPosition;
 
 #endif
