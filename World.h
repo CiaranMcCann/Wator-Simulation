@@ -12,24 +12,24 @@
 #include <stdlib.h>
 #include <assert.h>
 
-/*! \brief Used to store pionters to either fish or sharks.
- *
- *  Note: Used this struct instead of a void * Array as the casting process
- *  is messy and this is much simplier means of storing different types in one array.
- */
-typedef struct {
-    Fish * pFish;
-    Shark * pShark;
-} GirdObj;
+// ! \brief Used to store pionters to either fish or sharks.
+//  *
+//  *  Note: Used this struct instead of a void * Array as the casting process
+//  *  is messy and this is much simplier means of storing different types in one array.
+ 
+// typedef struct {
+//     Fish * pFish;
+//     Shark * pShark;
+// } GirdObj;
 
-GirdObj GridObjFactory()
-{
-	GirdObj g;
-	g.pFish = 0;
-	g.pShark = 0;
+// GirdObj GridObjFactory()
+// {
+// 	GirdObj g;
+// 	g.pFish = 0;
+// 	g.pShark = 0;
 
-	return g;
-}
+// 	return g;
+// }
 
 /*! \brief Handles wrap around
  *
@@ -147,7 +147,7 @@ void populateWorld(short nFish, short nSharks)
  *  This will only work for fish so may rename to checkTileFish or somesuch
  *
  */
-short checkTileForEntity(short x, short y)
+char checkTileForEntity(short x, short y)
 {
     manageWrapAround(&x, &y);
 
@@ -163,7 +163,7 @@ short checkTileForEntity(short x, short y)
  * @param short y The y position of the tile
  * @returns True for shark, false otherwise
  */
-short checkTileForShark(short x, short y)
+char checkTileForShark(short x, short y)
 {
     manageWrapAround(&x, &y);
 
@@ -179,7 +179,7 @@ short checkTileForShark(short x, short y)
  * @param short y The y position of the tile
  * @returns The poshorter to the fish in the tile or null
  */
-short checkTileForFish(short x, short y)
+char checkTileForFish(short x, short y)
 {
     manageWrapAround(&x, &y);
 
@@ -194,8 +194,8 @@ short checkTileForFish(short x, short y)
  */
 void updateWorld()
 {
-	int y = 0;
-	int x = 0;        
+	short y = 0;
+	short x = 0;        
 
     for(y = 0; y < GRID_ROWS; y++)
     {

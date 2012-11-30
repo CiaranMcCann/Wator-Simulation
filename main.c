@@ -6,16 +6,15 @@
 #include <stdlib.h>
 #include <time.h>
 
-short checkTileForEntity(short x, short y);
-short checkTileForShark(short x, short y);
-short checkTileForFish(short x, short y);
+char checkTileForEntity(short x, short y);
+char checkTileForShark(short x, short y);
+char checkTileForFish(short x, short y);
 void _activateAt(short x, short y, short fishFlag);
 void deactivateAt(short x, short y);
 void activateFishAt(short x, short y);
 void activateSharkAt(short x, short y);
 
 #include "Globals.h"
-#include "GridPosition.h"
 #include "Drawing.h"
 #include "World.h"
 

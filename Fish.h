@@ -6,7 +6,6 @@
 
 #include "Globals.h"
 #include "World.h"
-#include "GridPosition.h"
 
 
 /*! \brief A structure to hold the data memebers of Fish.
@@ -14,8 +13,8 @@
  *  A simple structure which defines data memebers of Fish.
  */
 typedef struct{
-    short mSpawnCounter;
-    short active;
+    char mSpawnCounter;
+    char active;
 }Fish;
 
 Fish fishCollection[FISH_LIST_LENGTH];
@@ -70,7 +69,7 @@ void moveFish(short x, short y, short newX, short newY, Fish *fish)
 void updateFish(short x, short y, Fish *pFish)
 {
     char direction[4];
-    short available = 0; //!< Number of available directions
+    char available = 0; //!< Number of available directions
 
     // Add all available directions to a char array
     // Increase the available parameter

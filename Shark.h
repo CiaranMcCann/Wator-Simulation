@@ -6,16 +6,15 @@
 
 #include "Globals.h"
 #include "World.h"
-#include "GridPosition.h"
 
 /*! \brief A structure to hold the data memebers of Shark.
  *
  *  A simple structure which defines data memebers of Shark.
  */
 typedef struct{
-    short mSpawnCounter;
-    short mStarveCounter;
-    short active;
+    char mSpawnCounter;
+    char mStarveCounter;
+    char active;
 }Shark;
 
 Shark sharksCollection[SHARK_LIST_LENGTH];
@@ -73,7 +72,7 @@ void sharkMove(short x, short y, short newX, short newY, Shark * pShark)
 char sharkHunt(short x, short y, Shark * pShark)
 {
 	char dir[4];
-	short i = 0;
+	char i = 0;
 
 	if (checkTileForFish(x, y + 1) == 1)
 	{
@@ -141,7 +140,7 @@ void updateShark(short x, short y, Shark * pShark)
     if (sharkHunt(x, y, pShark) == 0)
     {
     	char dir[4];
-		short i = 0;
+		char i = 0;
 
 		if (checkTileForShark(x, y + 1) == 0)
 		{
