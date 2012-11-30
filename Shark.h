@@ -13,15 +13,12 @@
  *  A simple structure which defines data memebers of Shark.
  */
 typedef struct{
-    GridPosition pos;
-    short updated;  /*!< Bool flag - To stop a enity been updated twice */
     short mSpawnCounter;
     short mStarveCounter;
-    short mDead;
-    short mFed;
     short active;
 }Shark;
 
+Shark sharksCollection[SHARK_LIST_LENGTH];
 
 /*! \brief Creates a shark.
  *
@@ -30,17 +27,11 @@ typedef struct{
  */
 Shark sharkFactory(short x, short y)
 {
-       Shark  pShark;
-       pShark.pos.X = x;
-       pShark.pos.Y = y;
-       pShark.updated = 0;
-       pShark.mStarveCounter = 0;
-       pShark.mSpawnCounter = 0;
-       pShark.mDead = 0;
-       pShark.mFed = 0;
-       pShark.active = 0;
-
-       return pShark;
+   Shark pShark;
+   pShark.mStarveCounter = 0;
+   pShark.mSpawnCounter = 0;
+   pShark.active = 0;
+   return pShark;
 }
 
 /*!
@@ -50,28 +41,27 @@ Shark sharkFactory(short x, short y)
  *  \param y The Y position of the shark
  *  \param pShark The poshorter to the shark to be moved
 */
-void sharkMove(short x, short y, Shark * pShark)
+void sharkMove(short x, short y, short newX, short newY, Shark * pShark)
 {
     pShark->mSpawnCounter += 1;
     pShark->mStarveCounter += 1;
 
 	if (pShark->mStarveCounter == SHARK_STARVERATE)
     {
-    	pShark->mDead = 1;
+    	pShark->active = 0;
     }
     else if (pShark->mSpawnCounter == SHARK_SPAWNRATE)
-    {
-    	createSharkAt(x, y);
+    {    	
+    	activateSharkAt(newX, newY);
     	pShark->mSpawnCounter = 0;
     }
     else
-    {
-		GridPosition newPosition;
-		newPosition.X = x;
-		newPosition.Y = y;
-		moveSharkPointerTo(newPosition, pShark);
-	    	pShark->pos.X = x;
-	    	pShark->pos.Y = y;
+    {   
+    	Shark * newPShark = &sharksCollection[newX + (newY * GRID_COLUMNS)];
+    	deactivateAt(x, y);
+    	activateSharkAt(newX, newY);
+    	newPShark->mStarveCounter = pShark->mStarveCounter;
+    	newPShark->mSpawnCounter = pShark->mSpawnCounter;
     }
 }
 
@@ -80,13 +70,10 @@ void sharkMove(short x, short y, Shark * pShark)
  *
  *  \param pShark The poshorter to the shark to be moved
 */
-void sharkHunt(Shark * pShark)
+char sharkHunt(short x, short y, Shark * pShark)
 {
 	char dir[4];
 	short i = 0;
-
-	short x = pShark->pos.X;
-	short y = pShark->pos.Y;
 
 	if (checkTileForFish(x, y + 1) == 1)
 	{
@@ -109,35 +96,37 @@ void sharkHunt(Shark * pShark)
 		++i;
 	}
 
-
 	if (i > 0)
 	{
+		short newX = x;
+		short newY = y;
 		i = rand() % i;
-
 		switch( dir[i] )
-        	{
-	        	case 'N': // North
-        			y+=1;
-	                break;
-	            case 'S': // South
-            		y-=1;
-	                break;
-	            case 'E': // East
-	            	x+=1;
-	                break;
-	            case 'W': // West
-	            	x-=1;
-	                break;
-	            default :
-	            	break;
-        	}// end switch
+    	{
+        	case 'N': // North
+    			newY+=1;
+                break;
+            case 'S': // South
+        		newY-=1;
+                break;
+            case 'E': // East
+            	newX+=1;
+                break;
+            case 'W': // West
+            	newX-=1;
+                break;
+            default :
+            	break;
+    	}// end switch
 
-		manageWrapAround(&x, &y);
-		destroyAt(x, y);
-		sharkMove(x, y, pShark);
-		pShark->mFed = 1;
+		manageWrapAround(&newX, &newY);
+		deactivateAt(newX, newY);
+		pShark->mStarveCounter = 0;
+		sharkMove(x, y, newX, newY, pShark);
+		return 1;
 	}
 
+	return 0;
 }
 
 /*!
@@ -149,17 +138,10 @@ void sharkHunt(Shark * pShark)
 */
 void updateShark(short x, short y, Shark * pShark)
 {
-    // Make sure not to update twice
-    //if (pShark->updated == 1)
-     //   return;
-
-    sharkHunt(pShark);
-
-    if (pShark->mFed == 0)
+    if (sharkHunt(x, y, pShark) == 0)
     {
     	char dir[4];
 		short i = 0;
-
 
 		if (checkTileForShark(x, y + 1) == 0)
 		{
@@ -185,40 +167,35 @@ void updateShark(short x, short y, Shark * pShark)
 		if (i > 0)
 		{
 			i = rand() % i;
-			x = pShark->pos.X;
-			y = pShark->pos.Y;
+			short newX = x;
+			short newY = y;
 
 			switch( dir[i] )
         	{
 	        	case 'N': // North
-        			y+=1;
+        			newY+=1;
 	                break;
 	            case 'S': // South
-            		y-=1;
+            		newY-=1;
 	                break;
 	            case 'E': // East
-	            	x+=1;
+	            	newX+=1;
 	                break;
 	            case 'W': // West
-	            	x-=1;
+	            	newX-=1;
 	                break;
 	            default :
 	            	break;
         	}// end switch
 
-        	manageWrapAround(&x, &y);
-			sharkMove(x, y, pShark);
-
-			
+        	manageWrapAround(&newX, &newY);
+			sharkMove(x, y, newX, newY, pShark);			
 		}// end if i
     }// end if mFed
     else
     {
     	pShark->mStarveCounter = 0;
     }
-
-    //pShark->updated = 1;
-    pShark->mFed = 0;
 }
 
 #endif

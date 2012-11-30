@@ -31,56 +31,6 @@ GirdObj GridObjFactory()
 	return g;
 }
 
-
- // Array of GirdObjs which
-GirdObj world[GRID_ROWS][GRID_COLUMNS ];
-
-GirdObj world[GRID_ROWS][GRID_COLUMNS ];
-Fish fishCollection[FISH_LIST_LENGTH];
-Shark sharksCollection[SHARK_LIST_LENGTH];
-
-
-Shark * addShark( Shark s)
-{
-    s.active = 1; 
-
-    int i = 0;
-
-    //TODO omp for this bitch
-    for( i = 0; i < SHARK_LIST_LENGTH; i++)
-    {
-    	// find a shark thats not active and overwrite it
-        if(sharksCollection[i].active == 0)
-        {
-            sharksCollection[i] = s;
-            return &sharksCollection[i];
-        }
-    }
-    assert( 1 == 2); // // If it gets to this line the array is to small 
-}
-
-
-Fish * addFish(Fish f)
-{
-    f.active = 1;
-
-    int i = 0;
-
-    //Loop till we fine a fish object which is not active and use that
-    for(i = 0; i < FISH_LIST_LENGTH; i++)
-    {
-        if( fishCollection[i].active == 0 )
-        {
-        	//TODO just overwrite x, y etc instead of making new object
-            fishCollection[i] = f;   
-            return &fishCollection[i];
-
-        }
-    }
-     assert( 1 == 2); // If it gets to this line the array is to small 
-
-}
-
 /*! \brief Handles wrap around
  *
  *  \returns A grid position in the bounds of the world
@@ -103,78 +53,39 @@ void manageWrapAround(short * x, short * y)
  *
  * Function only really exists because as a user I hate short flags
  */
-void _activeAt(short x, short y, short fishFlag)
+void _activateAt(short x, short y, short fishFlag)
 {
-	//if( world[x][y].pFish.active == 0 &&  world[x][y].pShark.active == 0)
-    if( world[x][y].pFish == 0 &&  world[x][y].pShark == 0)
+    if( fishCollection[x + (y * GRID_COLUMNS)].active == 0 &&  sharksCollection[x + (y * GRID_COLUMNS)].active == 0)
     {
         if(fishFlag)
         {
-            world[x][y].pFish = addFish(fishFactory(x,y));
+        	fishCollection[x + (y * GRID_COLUMNS)].active = 1;
+       		fishCollection[x + (y * GRID_COLUMNS)].mSpawnCounter = 0;
         }
         else
         {
-            world[x][y].pShark = addShark(sharkFactory(x,y));
+            sharksCollection[x + (y * GRID_COLUMNS)].active = 1;
+            sharksCollection[x + (y * GRID_COLUMNS)].mSpawnCounter = 0;
+			sharksCollection[x + (y * GRID_COLUMNS)].mStarveCounter = 0;
         }
     }
 }
 
-/*! \brief Moves the fish pointer within the grid.
- *
- *  Moves the fish pointer within the grid.
- *  Performs no bounds checking.
- *  \param newPos - The grid position to move to.
- *  \param pFish - The fish to move.
- */
-void moveFishPointerTo(GridPosition newPos, Fish* pFish)
+void deactivateAt(short x, short y)
 {
-	world[pFish->pos.X][pFish->pos.Y].pFish = 0;
-	world[newPos.X][newPos.Y].pFish = pFish;
+    sharksCollection[(GRID_COLUMNS * y) + x].active = 0;
+    fishCollection[(GRID_COLUMNS * y) + x].active = 0;
 }
 
-/*! \brief Moves the shark pointer within the grid.
+/*! \brief Activates fish at given [x][y]
  *
- *  Moves the shark pointer within the grid.
- *  Performs no bounds checking.
- *  \param newPos - The grid position to move to.
- *  \param pShark - The shark to move.
- */
-void moveSharkPointerTo(GridPosition newPos, Shark *pShark)
-{
-	world[pShark->pos.X][pShark->pos.Y].pShark = 0;
-	world[newPos.X][newPos.Y].pShark = pShark;
-}
-
-/*! \brief Destories the enity at given grid location
- *
- *  Destories the enity at given grid location and frees memory
+ *  Activates fish at given [x][y]
  *  \param x - index shorto array
  *  \param y - index shorto array
  */
-void destroyAt(short x, short y)
+void activateFishAt(short x, short y)
 {
-	if(world[x][y].pFish)
-	{
-    	//free(world[x][y].pFish);
-    	world[x][y].pFish->active = 0;
-
-	}
-	else if(world[x][y].pShark)
-	{
-    	//free(world[x][y].pShark);
-    	world[x][y].pShark->active = 0;
-	}
-}
-
-
-/*! \brief Creates fish at given [x][y]
- *
- *  Creates fish at given [x][y]
- *  \param x - index shorto array
- *  \param y - index shorto array
- */
-void activeFishAt(short x, short y){
-    _activeAt(x,y,1);
+    _activateAt(x,y,1);
 }
 
 /*! \brief Creates shark at given [x][y]
@@ -183,8 +94,9 @@ void activeFishAt(short x, short y){
  *  \param x - index shorto array
  *  \param y - index shorto array
  */
-void createSharkAt(short x, short y){
-    _createAt(x,y,0);
+void activateSharkAt(short x, short y)
+{
+    _activateAt(x,y,0);
 }
 
 
@@ -196,62 +108,38 @@ void createSharkAt(short x, short y){
  */
 void populateWorld(short nFish, short nSharks)
 {
-    // int i = 0;
-    // for(i = 0; i < GRID_ROWS*GRID_COLUMNS; i++)
-    // {
-    //     fishCollection[i].mSpawnCounter;
-    // }
+	srand(time(NULL));
+    short total = nFish + nSharks;
+    short x = 0;
+    short y = 0;
+    short i = 0; //C90 standard doesn't allow loop var declaration inside loop
 
-	//    Its probably a good idea to emphasize that srand() should only be called once.
-	//    Also, in a threaded application, might want to make sure that the generator's
-	//    state is stored per thread, and seed the generator once for each thread.
-	//#pragma omp parallel
-    //{
-    	srand(time(NULL));
-	    short total = nFish + nSharks;
-	    short x = 0;
-	    short y = 0;
-	    short i = 0; //C90 standard doesn't allow loop var declaration inside loop
+    for(y = 0; y < GRID_ROWS; y++)
+    {
+        for(x= 0; x < GRID_COLUMNS; x++)
+        {            
+        	fishCollection[(GRID_COLUMNS * y) + x] = fishFactory(x, y);
+        	sharksCollection[(GRID_COLUMNS * y) + x] = sharkFactory(x, y);
+        } // end for x
+    } // end for y
 
-	    for(y = 0; y < GRID_ROWS; y++)
-	    {
-	    	//#pragma omp for
-	        for(x= 0; x < GRID_COLUMNS; x++)
-	        {
-	            
-	        	fishCollection[(GRID_COLUMNS * y) + x] = fishFactory(-1,-1);
-	        	world[x][y] = GridObjFactory();
+    for(i = 0; i < total; i++)
+    {
+        x = rand() % GRID_ROWS;
+        y = rand() % GRID_COLUMNS;
 
-	        	sharksCollection[(GRID_COLUMNS * y) + x] = sharkFactory(-1,-1);
-
-	        } // end for x
-	    } // end for y
-
-
-    	//#pragma omp for
-	    for(i = 0; i < total; i++)
-	    {
-	        x = rand() % GRID_ROWS;
-	        y = rand() % GRID_COLUMNS;
-
-	        if(i < nFish)
-	        {
-	            //continue with popluating fish
-	            fishCollection[i].pos.X = x;
-	            fishCollection[i].pos.Y = y;
-	            fishCollection[i].active = 1;
-	            world[x][y].pFish = &fishCollection[i];
-	        }
-	        else
-	        {
-	            // once all fish done popluate sharks
-	            sharksCollection[i].pos.X = x;
-	            sharksCollection[i].pos.Y = y;
-	            sharksCollection[i].active = 1;
-	            world[x][y].pShark = &sharksCollection[i];
-	        }
-	    }
-	//}
+        if(i < nFish)
+        {
+            //continue with popluating fish
+            fishCollection[(GRID_COLUMNS * y) + x].active = 1;
+        }
+        else
+        {
+            // once all fish done popluate sharks
+            fishCollection[(GRID_COLUMNS * y) + x].active = 0;
+            sharksCollection[(GRID_COLUMNS * y) + x].active = 1;
+        }
+    }
 }
 
 /*! \ Checks a tile to see if it contains fish or shark
@@ -261,22 +149,12 @@ void populateWorld(short nFish, short nSharks)
  */
 short checkTileForEntity(short x, short y)
 {
-    short i = 0;
+    manageWrapAround(&x, &y);
 
-    if (x < 0) // handle wrap around
-        x = GRID_COLUMNS - 1;
-    else if (x >= GRID_COLUMNS)
-        x = 0;
-
-    if (y < 0)
-        y = GRID_ROWS - 1;
-    else if (y >= GRID_ROWS)
-        y = 0;
-
-    if(world[x][y].pShark || world[x][y].pFish)
-        i = 1;
-
-     return i;
+    if(sharksCollection[(GRID_COLUMNS * y) + x].active == 1 || fishCollection[(GRID_COLUMNS * y) + x].active == 1)
+        return 1;
+    else
+     	return 0;
 }
 
 /*
@@ -289,7 +167,7 @@ short checkTileForShark(short x, short y)
 {
     manageWrapAround(&x, &y);
 
-    if (world[x][y].pShark !=0)
+    if (sharksCollection[(GRID_COLUMNS * y) + x].active == 1)
         return 1;
     else
         return 0;
@@ -305,7 +183,7 @@ short checkTileForFish(short x, short y)
 {
     manageWrapAround(&x, &y);
 
-    if (world[x][y].pFish !=0)
+    if (fishCollection[(GRID_COLUMNS * y) + x].active == 1)
         return 1;
     else
         return 0;
@@ -317,75 +195,22 @@ short checkTileForFish(short x, short y)
 void updateWorld()
 {
 	int y = 0;
-	int x = 0;
-        
+	int x = 0;        
 
-    //#pragma omp parallel 
-    //{
-        int i = 0;
-       // #pragma omp for
-        for(i = 0; i < FISH_LIST_LENGTH; i++)
-        {                
-               if( fishCollection[i].active == 1 )
-               {
-                 updateFish(fishCollection[i].pos.X, fishCollection[i].pos.Y, &fishCollection[i]);
-               }
-        }
-
-        int j = 0;
-        //#pragma omp for
-        for (j = 0; j < SHARK_LIST_LENGTH; j++)
-        {
-            if( sharksCollection[j].active == 1)
+    for(y = 0; y < GRID_ROWS; y++)
+    {
+        for(x= 0; x < GRID_COLUMNS; x++)
+        { 
+        	if (fishCollection[(GRID_COLUMNS * y) + x].active == 1)
+        	{
+                updateFish(x, y, &fishCollection[(GRID_COLUMNS * y) + x]);
+        	}
+            else if (sharksCollection[(GRID_COLUMNS * y) + x].active == 1)
             {
-                updateShark(sharksCollection[j].pos.X, sharksCollection[j].pos.Y, &sharksCollection[j]);
+                updateShark(x, y, &sharksCollection[(GRID_COLUMNS * y) + x]);
             }
         }
-	//}
-    // #pragma omp parallel 
-    // {
-    //     #pragma omp for
-    //     for(y = 0; y < GRID_ROWS; y++)
-    //     {		
-    //         #pragma omp for
-    //         for(x = 0; x < GRID_COLUMNS; x++)
-    //         {
-    //             if(world[x][y].pFish != 0) // Check if null
-    //             {
-    //                 updateFish(x, y, world[x][y].pFish);
-    //             }
-    //         	else if(world[x][y].pShark != 0) // Check if null
-    //             {
-    //                 updateShark(x, y, world[x][y].pShark);
-    //             }
-    //         }
-    //     }
-   		
-    //     #pragma omp barrier
-
-    //     #pragma omp for
-    //     for(y = 0; y < GRID_ROWS; y++)
-    //     {
-    //     	#pragma omp for
-    //         for(x= 0; x < GRID_COLUMNS; x++)
-    //         {
-    //             if(world[x][y].pFish != 0)
-    //             {
-    //                 world[x][y].pFish->updated = 0;
-    //             }
-    //             else if(world[x][y].pShark != 0)
-    //             {
-    //                 world[x][y].pShark->updated = 0;
-    //                 // Check if the shark is dead
-    //                 if (world[x][y].pShark->mDead)
-    //                 {
-    //                     destroyAt(x, y);
-    //                 }
-    //             }
-    //         } // end for x
-    //     } // end for y
-
-    // }
+    }
 }
 
 
@@ -393,44 +218,22 @@ void updateWorld()
  */
 void drawWorld()
 {
-
-	     int i = 0;
-        for(i = 0; i < FISH_LIST_LENGTH; i++)
-        {                
-               if( fishCollection[i].active == 1 )
-               {
-                 DrawFishAt(fishCollection[i].pos);
-               }
-        }
-
-        int j = 0;
-        for (j = 0; j < SHARK_LIST_LENGTH; j++)
-        {
-            if( sharksCollection[j].active == 1)
+    int y = 0;
+    int x = 0;
+    for(y = 0; y < GRID_ROWS; y++)
+    {
+        for(x= 0; x < GRID_COLUMNS; x++)
+        { 
+            if (fishCollection[(GRID_COLUMNS * y) + x].active == 1)
             {
-                DrawSharkAt(sharksCollection[j].pos);
+                DrawFishAt(x, y);
+            }
+            else if (sharksCollection[(GRID_COLUMNS * y) + x].active == 1)
+            {
+                DrawSharkAt(x, y);
             }
         }
-
-
-  //   short y = 0;
-  //   short x = 0;
-  //   for(x = 0; x < GRID_COLUMNS; x++)
-  //   {
-  //       for(y = 0; y < GRID_ROWS; y++)
-  //       {
-	 //    if(world[x][y].pFish != 0)
-	 //    {
-		// DrawFishAt(world[x][y].pFish->pos);
-	 //    }
-
-	 //    if(world[x][y].pShark != 0)
-	 //    {
-		// DrawSharkAt(world[x][y].pShark->pos);
-	 //    }
-  //       }
-  //   }
-
+    }
 }
 
 

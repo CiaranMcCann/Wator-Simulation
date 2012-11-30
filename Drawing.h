@@ -88,10 +88,10 @@ int InitializeOpenGL()
  *  Draws a graphical representation of a shark to the window.
  *  \param sharkPosition The grid position of the shark to draw.
  */
-void DrawSharkAt(GridPosition sharkPosition)
+void DrawSharkAt(int x, int y)
 {
-	float xPos = (2.0f * (float)sharkPosition.X / (float)GRID_COLUMNS ) - 1.0f;
-	float yPos = (2.0f * (float)sharkPosition.Y / (float)GRID_ROWS) - 1.0f;
+	float xPos = (2.0f * (float)x / (float)GRID_COLUMNS ) - 1.0f;
+	float yPos = (2.0f * (float)y / (float)GRID_ROWS) - 1.0f;
 
 	glBegin(GL_QUADS);
 	glColor3f(1., 0., 0.); glVertex3f(xPos, yPos, 1.);
@@ -106,10 +106,10 @@ void DrawSharkAt(GridPosition sharkPosition)
  *  Draws a graphical representation of a fish to the window.
  *  \param sharkPosition The grid position of the fish to draw.
  */
-void DrawFishAt(GridPosition fishPosition)
+void DrawFishAt(int x, int y)
 {
-	float xPos = (2.0f * (float)fishPosition.X / (float)GRID_COLUMNS ) - 1.0f;
-	float yPos = (2.0f * (float)fishPosition.Y / (float)GRID_ROWS) - 1.0f;
+	float xPos = (2.0f * (float)x / (float)GRID_COLUMNS ) - 1.0f;
+	float yPos = (2.0f * (float)y / (float)GRID_ROWS) - 1.0f;
 
 	xPos += QuadWidth * 0.25f;
 	yPos += QuadHeight * 0.25f;

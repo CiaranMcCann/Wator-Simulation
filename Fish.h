@@ -14,13 +14,11 @@
  *  A simple structure which defines data memebers of Fish.
  */
 typedef struct{
-    GridPosition pos;
-    short updated;  /*!< Bool flag - To stop a enity been updated twice */
     short mSpawnCounter;
     short active;
-
 }Fish;
 
+Fish fishCollection[FISH_LIST_LENGTH];
 
 /*! \brief Creates fish.
  *
@@ -29,13 +27,10 @@ typedef struct{
  */
 Fish fishFactory(short x, short y)
 {
-       Fish pFish;
-       pFish.pos.X = x;
-       pFish.pos.Y = y;
-       pFish.active = 0;
-       pFish.updated = 0;
-       pFish.mSpawnCounter = 0;
-       return pFish;
+    Fish pFish;
+    pFish.active = 0;
+    pFish.mSpawnCounter = 0;
+    return pFish;
 }
 
 /*! \ Moves the fish position
@@ -46,23 +41,20 @@ Fish fishFactory(short x, short y)
  *  @param short y The x position of the tile
  *  @param Fish *fish Poshorter to the current fish
  */
-void moveFish(short x, short y, Fish *fish)
-{
+void moveFish(short x, short y, short newX, short newY, Fish *fish)
+{    
     fish->mSpawnCounter +=1;
-
     if(fish->mSpawnCounter==FISH_SPAWNRATE)
     {
-        fish->mSpawnCounter=0;
-        activeFishAt(x,y);
+        fish->mSpawnCounter = 0;
+        activateFishAt(newX, newY);
     }
     else
     {
-    	GridPosition newPosition;
-    	newPosition.X = x;
-    	newPosition.Y = y;
-    	moveFishPointerTo(newPosition, fish);
-    	fish->pos.X = x;
-    	fish->pos.Y = y;
+        Fish * newPFish = &fishCollection[newX + (newY * GRID_COLUMNS)];
+        deactivateAt(x, y);
+        activateFishAt(newX, newY);
+        newPFish->mSpawnCounter = fish->mSpawnCounter;
     }
 }
 
@@ -77,10 +69,6 @@ void moveFish(short x, short y, Fish *fish)
  */
 void updateFish(short x, short y, Fish *pFish)
 {
-    // Make sure updated is set to 0 
-    //if (pFish->updated == 1)
-     //   return;
-
     char direction[4];
     short available = 0; //!< Number of available directions
 
@@ -106,33 +94,33 @@ void updateFish(short x, short y, Fish *pFish)
         available++;
     }
 
-    if(available>0) 
+    if(available > 0) 
     {
         available = rand() % available;
-        x = pFish->pos.X;
-        y = pFish->pos.Y;
+        short newX = x;
+        short newY = y;
 
         // Set the direction
         switch( direction[available] )
         {
                 case 'N': // Direction is North
-                    y+=1;
+                    newY+=1;
                     break;
                 case 'S': // Direction is South
-                    y-=1;
+                    newY-=1;
                     break;
                 case 'E': // Direction is East
-                    x+=1;
+                    newX+=1;
                     break;
                 case 'W': // Direction is West
-                    x-=1;
+                    newX-=1;
                     break;
                 default :
                     break;
         }// end switch
 
-        manageWrapAround(&x, &y);
-        moveFish(x, y, pFish);                
+        manageWrapAround(&newX, &newY);
+        moveFish(x, y, newX, newY, pFish);                
     }
 }
 

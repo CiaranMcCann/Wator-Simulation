@@ -9,6 +9,10 @@
 short checkTileForEntity(short x, short y);
 short checkTileForShark(short x, short y);
 short checkTileForFish(short x, short y);
+void _activateAt(short x, short y, short fishFlag);
+void deactivateAt(short x, short y);
+void activateFishAt(short x, short y);
+void activateSharkAt(short x, short y);
 
 #include "Globals.h"
 #include "GridPosition.h"
@@ -71,9 +75,7 @@ int main(int argc, char *argv[])
 {
 	omp_set_num_threads(numThreads);
 	omp_set_nested(1);
-	
-	printf("%d\n", omp_get_max_active_levels());
-	
+		
 	int runCount = 0;	
 	float averageFrames[NUMBER_OF_RUNS];
 	
