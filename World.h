@@ -45,7 +45,7 @@ Shark * addShark( Shark s)
             return &sharksCollection[i];
         }
     }
-    assert( 1 == 2);
+    assert( 1 == 2); // // If it gets to this line the array is to small 
 }
 
 
@@ -65,7 +65,7 @@ Fish * addFish(Fish f)
 
         }
     }
-     assert( 1 == 2);
+     assert( 1 == 2); // If it gets to this line the array is to small 
 
 }
 
@@ -282,8 +282,8 @@ short checkTileForFish(short x, short y)
  */
 void updateWorld()
 {
-	    int y = 0;
-	    int x = 0;
+	int y = 0;
+	int x = 0;
         
 
     #pragma omp parallel 
@@ -359,23 +359,45 @@ void updateWorld()
  */
 void drawWorld()
 {
-    short y = 0;
-    short x = 0;
-    for(x = 0; x < GRID_COLUMNS; x++)
-    {
-        for(y = 0; y < GRID_ROWS; y++)
-        {
-	    if(world[x][y].pFish != 0)
-	    {
-		DrawFishAt(world[x][y].pFish->pos);
-	    }
 
-	    if(world[x][y].pShark != 0)
-	    {
-		DrawSharkAt(world[x][y].pShark->pos);
-	    }
+	     int i = 0;
+        #pragma omp for
+        for(i = 0; i < FISH_LIST_LENGTH; i++)
+        {                
+               if( fishCollection[i].active == 1 )
+               {
+                 DrawFishAt(fishCollection[i].pos);
+               }
         }
-    }
+
+        int j = 0;
+        #pragma omp for
+        for (j = 0; j < SHARK_LIST_LENGTH; j++)
+        {
+            if( sharksCollection[j].active == 1)
+            {
+                DrawSharkAt(fishCollection[i].pos);
+            }
+        }
+
+
+  //   short y = 0;
+  //   short x = 0;
+  //   for(x = 0; x < GRID_COLUMNS; x++)
+  //   {
+  //       for(y = 0; y < GRID_ROWS; y++)
+  //       {
+	 //    if(world[x][y].pFish != 0)
+	 //    {
+		// DrawFishAt(world[x][y].pFish->pos);
+	 //    }
+
+	 //    if(world[x][y].pShark != 0)
+	 //    {
+		// DrawSharkAt(world[x][y].pShark->pos);
+	 //    }
+  //       }
+  //   }
 
 }
 

@@ -8,12 +8,12 @@
 float const WindowHeight = 800.0f;	/*!< The height of the window to create. */
 float const WindowWidth = 800.0f;	/*!< The width of the window to create. */
 
-int numThreads = 4;		/*!< The number of threads to use.*/
+int numThreads = 8;		/*!< The number of threads to use.*/
 
 #define NUMBER_OF_RUNS 4		/*!< The number of times the simulation should run. */
 
-#define GRID_ROWS  4000		/*!< The number of rows in the grid. */
-#define GRID_COLUMNS 4000		/*!< The number of columns in the grid. */
+#define GRID_ROWS  2000		/*!< The number of rows in the grid. */
+#define GRID_COLUMNS 2000		/*!< The number of columns in the grid. */
 #define CYCLES_PER_FRAME 1	/*!< The number of cycles which must complete before an update occurs. */
 
 #define N_SHARKS 1000	/*!< The initial number of sharks. */
