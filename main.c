@@ -9,7 +9,7 @@
 char checkTileForEntity(short x, short y);
 char checkTileForShark(short x, short y);
 char checkTileForFish(short x, short y);
-void _activateAt(short x, short y, short fishFlag);
+void _activateAt(int index, char fishFlag);
 void deactivateAt(short x, short y);
 void activateFishAt(short x, short y);
 void activateSharkAt(short x, short y);

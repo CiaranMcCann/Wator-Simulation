@@ -12,25 +12,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-// ! \brief Used to store pionters to either fish or sharks.
-//  *
-//  *  Note: Used this struct instead of a void * Array as the casting process
-//  *  is messy and this is much simplier means of storing different types in one array.
- 
-// typedef struct {
-//     Fish * pFish;
-//     Shark * pShark;
-// } GirdObj;
-
-// GirdObj GridObjFactory()
-// {
-// 	GirdObj g;
-// 	g.pFish = 0;
-// 	g.pShark = 0;
-
-// 	return g;
-// }
-
 /*! \brief Handles wrap around
  *
  *  \returns A grid position in the bounds of the world
@@ -53,28 +34,29 @@ void manageWrapAround(short * x, short * y)
  *
  * Function only really exists because as a user I hate short flags
  */
-void _activateAt(short x, short y, short fishFlag)
+void _activateAt(int index, char fishFlag)
 {
-    if( fishCollection[x + (y * GRID_COLUMNS)].active == 0 &&  sharksCollection[x + (y * GRID_COLUMNS)].active == 0)
+    if( fishCollection[index].active == 0 &&  sharksCollection[index].active == 0)
     {
         if(fishFlag)
         {
-        	fishCollection[x + (y * GRID_COLUMNS)].active = 1;
-       		fishCollection[x + (y * GRID_COLUMNS)].mSpawnCounter = 0;
+        	fishCollection[index].active = 1;
+       		fishCollection[index].mSpawnCounter = 0;
         }
         else
         {
-            sharksCollection[x + (y * GRID_COLUMNS)].active = 1;
-            sharksCollection[x + (y * GRID_COLUMNS)].mSpawnCounter = 0;
-			sharksCollection[x + (y * GRID_COLUMNS)].mStarveCounter = 0;
+            sharksCollection[index].active = 1;
+            sharksCollection[index].mSpawnCounter = 0;
+			sharksCollection[index].mStarveCounter = 0;
         }
     }
 }
 
 void deactivateAt(short x, short y)
 {
-    sharksCollection[(GRID_COLUMNS * y) + x].active = 0;
-    fishCollection[(GRID_COLUMNS * y) + x].active = 0;
+    int index = x + (y * GRID_COLUMNS);
+    sharksCollection[index].active = 0;
+    fishCollection[index].active = 0;
 }
 
 /*! \brief Activates fish at given [x][y]
@@ -85,7 +67,7 @@ void deactivateAt(short x, short y)
  */
 void activateFishAt(short x, short y)
 {
-    _activateAt(x,y,1);
+    _activateAt( x + (y * GRID_COLUMNS), 1 );
 }
 
 /*! \brief Creates shark at given [x][y]
@@ -96,7 +78,7 @@ void activateFishAt(short x, short y)
  */
 void activateSharkAt(short x, short y)
 {
-    _activateAt(x,y,0);
+    _activateAt( x + (y * GRID_COLUMNS), 0 );
 }
 
 
@@ -156,7 +138,7 @@ char checkTileForEntity(short x, short y)
 {
     manageWrapAround(&x, &y);
 
-    if(sharksCollection[(GRID_COLUMNS * y) + x].active == 1 || fishCollection[(GRID_COLUMNS * y) + x].active == 1)
+    if( fishCollection[(GRID_COLUMNS * y) + x].active == 1 || sharksCollection[(GRID_COLUMNS * y) + x].active == 1 )
         return 1;
     else
      	return 0;
@@ -202,24 +184,26 @@ void updateWorld()
 	short y = 0;
     short x = 0;
     int count = 0;
-    #pragma omp parallel for
+    #pragma omp parallel for shared (fishCollection, sharksCollection) private (x, y)
     for(count = 0; count < SHARK_LIST_LENGTH; ++count)
     {
-        if (fishCollection[(GRID_COLUMNS * y) + x].active == 1)
+        y = count / GRID_COLUMNS;
+        x = count % GRID_COLUMNS;
+        if (fishCollection[count].active == 1)
         {
-            updateFish(x, y, &fishCollection[(GRID_COLUMNS * y) + x]);
+            updateFish(x, y, &fishCollection[count]);
         }
-        else if (sharksCollection[(GRID_COLUMNS * y) + x].active == 1)
+        else if (sharksCollection[count].active == 1)
         {
-            updateShark(x, y, &sharksCollection[(GRID_COLUMNS * y) + x]);
+            updateShark(x, y, &sharksCollection[count]);
         }
 
-        ++x;
-        if ((count + 1) % GRID_COLUMNS == 0)
-        {
-            x = 0;
-            ++y;
-        }
+        //~ ++x;
+        //~ if ((count + 1) % GRID_COLUMNS == 0)
+        //~ {
+            //~ x = 0;
+            //~ ++y;
+        //~ }
     }
 }
 

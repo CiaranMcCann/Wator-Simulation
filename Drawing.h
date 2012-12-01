@@ -12,7 +12,6 @@
 #include <GL/glx.h>
 #include <GL/glu.h>
 #include "Globals.h"
-#include "GridPosition.h"
 
 Display *dpy;	/*!< A poiter to the display to render to. */
 Window root;	/*!< The root (desktop) window. */
