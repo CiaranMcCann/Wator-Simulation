@@ -14,31 +14,30 @@
 typedef struct{
     char mSpawnCounter;
     char mStarveCounter;
-    char active;
 }Shark;
 
 Shark sharksCollection[SHARK_LIST_LENGTH];
 
 /*! \brief Creates a shark.
  *
- *  Creates a shark type on the heap and initlizes it.
- *  WARNING: The call is repsonisbly for freeing the memory after
+ *  Creates a shark type and initlizes it.
  */
-Shark sharkFactory(short x, short y)
+Shark sharkFactory()
 {
    Shark pShark;
    pShark.mStarveCounter = 0;
-   pShark.mSpawnCounter = 0;
-   pShark.active = 0;
+   pShark.mSpawnCounter = INACTIVE_VALUE;
    return pShark;
 }
 
 /*!
  *  \brief Moves the shark and handles spawning and dying.
  *
- *  \param x The X position of the shark
- *  \param y The Y position of the shark
- *  \param pShark The poshorter to the shark to be moved
+ *  \param x The  old X position of the shark
+ *  \param y The old Y position of the shark
+ *  \param newX The new X position of the shark
+ *  \param newY The new Y position of the shark
+ *  \param pShark The pointer to the shark to be moved
 */
 void sharkMove(short x, short y, short newX, short newY, Shark * pShark)
 {
@@ -47,7 +46,7 @@ void sharkMove(short x, short y, short newX, short newY, Shark * pShark)
 
 	if (pShark->mStarveCounter == SHARK_STARVERATE)
     {
-    	pShark->active = 0;
+	pShark->mSpawnCounter = INACTIVE_VALUE;
     }
     else if (pShark->mSpawnCounter == SHARK_SPAWNRATE)
     {    	
@@ -57,17 +56,20 @@ void sharkMove(short x, short y, short newX, short newY, Shark * pShark)
     else
     {   
     	Shark * newPShark = &sharksCollection[newX + (newY * GRID_COLUMNS)];
+	char spawnCount = pShark->mSpawnCounter;
     	deactivateAt(x, y);
     	activateSharkAt(newX, newY);
     	newPShark->mStarveCounter = pShark->mStarveCounter;
-    	newPShark->mSpawnCounter = pShark->mSpawnCounter;
+    	newPShark->mSpawnCounter = spawnCount;
     }
 }
 
 /*!
  *  \brief Function for the shark to hunt for fish
  *
- *  \param pShark The poshorter to the shark to be moved
+ *  \param x The  old X position of the shark
+ *  \param y The old Y position of the shark
+ *  \param pShark The pointer to the shark to be moved
 */
 char sharkHunt(short x, short y, Shark * pShark)
 {
@@ -133,7 +135,7 @@ char sharkHunt(short x, short y, Shark * pShark)
  *
  *  \param x The X position of the shark
  *  \param y The Y position of the shark
- *  \param pShark The poshorter to the shark to be moved
+ *  \param pShark The pointer to the shark to be moved
 */
 void updateShark(short x, short y, Shark * pShark)
 {

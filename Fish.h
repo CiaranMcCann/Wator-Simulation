@@ -14,32 +14,30 @@
  */
 typedef struct{
     char mSpawnCounter;
-    char active;
 }Fish;
 
 Fish fishCollection[FISH_LIST_LENGTH];
 
 /*! \brief Creates fish.
  *
- *  Creates a fish type on the heap and initlizes it.
- *  WARNING: The call is responsible for freeing the memory after
+ *  Creates a fish type and initlizes it.
  */
-Fish fishFactory(short x, short y)
+Fish fishFactory()
 {
     Fish pFish;
-    pFish.active = 0;
-    pFish.mSpawnCounter = 0;
+    pFish.mSpawnCounter = INACTIVE_VALUE;
     return pFish;
 }
 
-/*! \ Moves the fish position
- *  Update the fish spawncounter by 1
- *  If the spawnrate equals the counter create a new fish in the new position. 
- *  
- *  @param short x The x position of the tile
- *  @param short y The x position of the tile
- *  @param Fish *fish Poshorter to the current fish
- */
+/*!
+ *  \brief Moves the fish and handles spawning and dying.
+ *
+ *  \param x The old X position of the fish
+ *  \param y The old Y position of the fish
+ *  \param newX The new X position of the fish
+ *  \param newY The new Y position of the fish
+ *  \param fish The pointer to the fish to be moved
+*/
 void moveFish(short x, short y, short newX, short newY, Fish *fish)
 {    
     fish->mSpawnCounter +=1;
@@ -51,25 +49,24 @@ void moveFish(short x, short y, short newX, short newY, Fish *fish)
     else
     {
         Fish * newPFish = &fishCollection[newX + (newY * GRID_COLUMNS)];
+	char spawnCount = fish->mSpawnCounter;
         deactivateAt(x, y);
         activateFishAt(newX, newY);
-        newPFish->mSpawnCounter = fish->mSpawnCounter;
+        newPFish->mSpawnCounter = spawnCount;
     }
 }
 
-/*! \ Checks the surrounding grid positions for a free tile
- *  Store the possible directions in a character array and increase the 'available' directions
- *  If the available directions is greater than 0 then a move is possible
- *  Pick a random number from the available directions and pass that to a switch statement
- *  Finally call movefish using the chosen direction
- *  @param short x The x position of the tile
- *  @param short y The y position of the tile
- *  @param Fish *fish Poshorter to the current fish
- */
+/*!
+ *  \brief Updates the fish.
+ *
+ *  \param x The X position of the fish
+ *  \param y The Y position of the fish
+ *  \param pFish The pointer to the fish to be moved
+*/
 void updateFish(short x, short y, Fish *pFish)
 {
     char direction[4];
-    char available = 0; //!< Number of available directions
+    char available = 0; // Number of available directions
 
     // Add all available directions to a char array
     // Increase the available parameter

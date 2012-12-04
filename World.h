@@ -13,9 +13,8 @@
 #include <assert.h>
 
 /*! \brief Handles wrap around
- *
- *  \returns A grid position in the bounds of the world
-*/
+ *  Handles wrap around
+ */
 void manageWrapAround(short * x, short * y)
 {
     if (*x < 0)
@@ -29,58 +28,43 @@ void manageWrapAround(short * x, short * y)
         *y = 0;
 }
 
-
-/*! \brief Creates either a fish or a shark.
+/*! \brief Deactivates all entities at a given x,y coordinate
  *
- * Function only really exists because as a user I hate short flags
+ *  Deactivates all entities at a given x,y coordinate
+ *  \param x - The x coordinate
+ *  \param y - The y coordinate
  */
-void _activateAt(int index, char fishFlag)
-{
-    if( fishCollection[index].active == 0 &&  sharksCollection[index].active == 0)
-    {
-        if(fishFlag)
-        {
-        	fishCollection[index].active = 1;
-       		fishCollection[index].mSpawnCounter = 0;
-        }
-        else
-        {
-            sharksCollection[index].active = 1;
-            sharksCollection[index].mSpawnCounter = 0;
-			sharksCollection[index].mStarveCounter = 0;
-        }
-    }
-}
-
 void deactivateAt(short x, short y)
 {
     int index = x + (y * GRID_COLUMNS);
-    sharksCollection[index].active = 0;
-    fishCollection[index].active = 0;
+    sharksCollection[index].mSpawnCounter = INACTIVE_VALUE;
+    fishCollection[index].mSpawnCounter = INACTIVE_VALUE;
 }
 
-/*! \brief Activates fish at given [x][y]
+/*! \brief Activates a fish at a given x,y coordinate
  *
- *  Activates fish at given [x][y]
- *  \param x - index shorto array
- *  \param y - index shorto array
+ *  Activates a fish at a given x,y coordinate
+ *  \param x - The x coordinate
+ *  \param y - The y coordinate
  */
 void activateFishAt(short x, short y)
 {
-    _activateAt( x + (y * GRID_COLUMNS), 1 );
+    int index =  x + (y * GRID_COLUMNS);
+    fishCollection[index].mSpawnCounter = 0;
 }
 
-/*! \brief Creates shark at given [x][y]
+/*! \brief Activates a shark at a given x,y coordinate
  *
- *  Creates shark at given [x][y]
- *  \param x - index shorto array
- *  \param y - index shorto array
+ *  Activates a shark at a given x,y coordinate
+ *  \param x - The x coordinate
+ *  \param y - The y coordinate
  */
 void activateSharkAt(short x, short y)
 {
-    _activateAt( x + (y * GRID_COLUMNS), 0 );
+    int index =  x + (y * GRID_COLUMNS);
+    sharksCollection[index].mSpawnCounter = 0;
+    sharksCollection[index].mStarveCounter = 0;
 }
-
 
 /*! \brief Populates the world
  *
@@ -92,85 +76,87 @@ void populateWorld(short nFish, short nSharks)
 {
 	srand(time(NULL));
     short total = nFish + nSharks;
-    short x = 0;
-    short y = 0;
     short i = 0; //C90 standard doesn't allow loop var declaration inside loop
-
-    #pragma omp parallel
+    int index = 0;
+    int size = SHARK_LIST_LENGTH;
+    
+    #pragma omp privatefirst (size) parallel private (i, index, nFish) shared (fishCollection, sharksCollection)
     {
-        #pragma omp for collapse(2)
-        for(y = 0; y < GRID_ROWS; y++)
+        #pragma omp for
+        for(index = 0; index < size; index++)
         {
-            for(x= 0; x < GRID_COLUMNS; x++)
-            {            
-            	fishCollection[(GRID_COLUMNS * y) + x] = fishFactory(x, y);
-            	sharksCollection[(GRID_COLUMNS * y) + x] = sharkFactory(x, y);
-            } // end for x
-        } // end for y
+            fishCollection[index] = fishFactory();
+            sharksCollection[index] = sharkFactory();
+        }
 
+        #pragma omp barrier
+        
         #pragma omp for
         for(i = 0; i < total; i++)
         {
-            x = rand() % GRID_ROWS;
-            y = rand() % GRID_COLUMNS;
-
+            index = rand() % size;
             if(i < nFish)
             {
                 //continue with popluating fish
-                fishCollection[(GRID_COLUMNS * y) + x].active = 1;
+                fishCollection[index].mSpawnCounter = 0;
             }
             else
             {
                 // once all fish done popluate sharks
-                fishCollection[(GRID_COLUMNS * y) + x].active = 0;
-                sharksCollection[(GRID_COLUMNS * y) + x].active = 1;
+                fishCollection[index].mSpawnCounter = INACTIVE_VALUE;
+                sharksCollection[index].mSpawnCounter = 0;
             }
         }
     }
 }
 
-/*! \ Checks a tile to see if it contains fish or shark
- *  Checks for nulls squares
- *  This will only work for fish so may rename to checkTileFish or somesuch
+/*! \brief Checks if there is any entity at a tile
  *
+ *  Checks if there is any entity at a tile
+ *  \param x - The x position of the tile
+ *  \param y - The y position of the tile
+ *  \returns A value indicating whether the coordinate contains an entity or not.
  */
 char checkTileForEntity(short x, short y)
 {
     manageWrapAround(&x, &y);
+    int index = (GRID_COLUMNS * y) + x;
 
-    if( fishCollection[(GRID_COLUMNS * y) + x].active == 1 || sharksCollection[(GRID_COLUMNS * y) + x].active == 1 )
+    if( fishCollection[index].mSpawnCounter != INACTIVE_VALUE || sharksCollection[index].mSpawnCounter != INACTIVE_VALUE )
         return 1;
     else
      	return 0;
 }
 
-/*
- * Checks if there is a shark short a tile
- * @param short x The x position of the tile
- * @param short y The y position of the tile
- * @returns True for shark, false otherwise
+/*! \brief Checks if there is a shark at a tile
+ *
+ *  Checks if there is a shark at a tile
+ *  \param x - The x position of the tile
+ *  \param y - The y position of the tile
+ *  \returns A value indicating whether the coordinate contains a shark or not.
  */
 char checkTileForShark(short x, short y)
 {
     manageWrapAround(&x, &y);
 
-    if (sharksCollection[(GRID_COLUMNS * y) + x].active == 1)
+    if (sharksCollection[(GRID_COLUMNS * y) + x].mSpawnCounter != INACTIVE_VALUE )
         return 1;
     else
         return 0;
 }
 
-/*
- * Checks if there is a shark short a tile
- * @param short x The x position of the tile
- * @param short y The y position of the tile
- * @returns The poshorter to the fish in the tile or null
+/*! \brief Checks if there is a fish at a tile
+ *
+ *  Checks if there is a fish at a tile
+ *  \param x - The x position of the tile
+ *  \param y - The y position of the tile
+ *  \returns A value indicating whether the coordinate contains a fish or not.
  */
 char checkTileForFish(short x, short y)
 {
     manageWrapAround(&x, &y);
 
-    if (fishCollection[(GRID_COLUMNS * y) + x].active == 1)
+    if (fishCollection[(GRID_COLUMNS * y) + x].mSpawnCounter != INACTIVE_VALUE )
         return 1;
     else
         return 0;
@@ -189,21 +175,14 @@ void updateWorld()
     {
         y = count / GRID_COLUMNS;
         x = count % GRID_COLUMNS;
-        if (fishCollection[count].active == 1)
+        if (fishCollection[count].mSpawnCounter != INACTIVE_VALUE )
         {
             updateFish(x, y, &fishCollection[count]);
         }
-        else if (sharksCollection[count].active == 1)
+        else if (sharksCollection[count].mSpawnCounter != INACTIVE_VALUE )
         {
             updateShark(x, y, &sharksCollection[count]);
         }
-
-        //~ ++x;
-        //~ if ((count + 1) % GRID_COLUMNS == 0)
-        //~ {
-            //~ x = 0;
-            //~ ++y;
-        //~ }
     }
 }
 
@@ -218,11 +197,11 @@ void drawWorld()
     {
         for(x= 0; x < GRID_COLUMNS; x++)
         { 
-            if (fishCollection[(GRID_COLUMNS * y) + x].active == 1)
+            if (fishCollection[(GRID_COLUMNS * y) + x].mSpawnCounter != INACTIVE_VALUE )
             {
                 DrawFishAt(x, y);
             }
-            else if (sharksCollection[(GRID_COLUMNS * y) + x].active == 1)
+            else if (sharksCollection[(GRID_COLUMNS * y) + x].mSpawnCounter != INACTIVE_VALUE )
             {
                 DrawSharkAt(x, y);
             }
