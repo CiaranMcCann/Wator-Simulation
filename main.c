@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 		printf( "Simulation will run for %d seconds.\n", SIMULATION_LENGTH );
 				
 		int running= 1;
-		int seconds = 0;
+		float totalSeconds = 0.0;
 		double secondTimer = 0.0;
 		int frameCounter = 0;
 		time_t currentTime = 0;
@@ -114,21 +114,11 @@ int main(int argc, char *argv[])
 						
 						if (secondTimer >= 1.0)
 						{
-							secondTimer -= 1.0;
-							framesPerSecond[seconds] = frameCounter;								
-							++seconds;				
-							frameCounter = 0;
-							
-							if (seconds == SIMULATION_LENGTH)
-							{
-								float sum = 0.0f;
-								int count = 0;
-								for (count = 0; count < SIMULATION_LENGTH; count++)
-								{
-									sum += framesPerSecond[count];
-								}
-																
-								averageFrames[runCount] = sum / (float)count;
+							totalSeconds += secondTimer;
+							secondTimer = 0.0;							
+							if (totalSeconds >= SIMULATION_LENGTH)
+							{						
+								averageFrames[runCount] = (float)frameCounter / totalSeconds;
 								running = 0;
 								runCount ++;								
 							}

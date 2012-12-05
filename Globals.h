@@ -4,9 +4,9 @@
 float const WindowHeight = 800.0f;
 float const WindowWidth = 800.0f;
 
-int numThreads = 1;
+int numThreads = 8;
 
-#define NUMBER_OF_RUNS 2
+#define NUMBER_OF_RUNS 1
 #define GRID_ROWS 8192
 #define GRID_COLUMNS 8192
 #define CYCLES_PER_FRAME 1
