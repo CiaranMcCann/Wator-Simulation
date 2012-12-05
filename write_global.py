@@ -5,6 +5,9 @@ THREADS = sys.argv[2]
 NSHARKS = GRID_SIZE
 NFISH = str(int(GRID_SIZE)*10)
 
+if NFISH >16000:
+	NFISH == 16000
+
 
 f = open('/home/lab422/dev/Wator-Simulation/Globals.h','r')
 fwrite = open('/home/lab422/dev/Wator-Simulation/Globals.h','w')
@@ -17,7 +20,7 @@ fwrite.write(str('float const WindowWidth = 800.0f;')+'\n'+'\n')
 
 fwrite.write(str('int numThreads = ')+ THREADS+';\n'+'\n');	
 
-fwrite.write(str('#define NUMBER_OF_RUNS 10')+'\n')		
+fwrite.write(str('#define NUMBER_OF_RUNS 3')+'\n')
 
 fwrite.write(str('#define GRID_ROWS ')+ GRID_SIZE +'\n')		
 fwrite.write(str('#define GRID_COLUMNS ')+ GRID_SIZE+'\n')

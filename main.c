@@ -138,8 +138,10 @@ int main(int argc, char *argv[])
 			}
 		}
 		printf( "Simulation complete.\n");
+		cleanWorld();
 	}
 	
+
 	saveLogTofile(averageFrames);
 	printf( "Performance data saved to log file.\n");
 }

@@ -1,7 +1,7 @@
 
-for GRID in  16 128 512 2048 4096;
+for GRID in 8192;
 do
-	for THREAD in 1 2 4 8;
+	for THREAD in 1;
 	do
 		python write_global.py $GRID $THREAD
 		sh run.sh
