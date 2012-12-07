@@ -6,12 +6,15 @@
 #include <stdlib.h>
 #include <time.h>
 
-short checkTileForEntity(short x, short y);
-short checkTileForShark(short x, short y);
-short checkTileForFish(short x, short y);
+char checkTileForEntity(short x, short y);
+char checkTileForShark(short x, short y);
+char checkTileForFish(short x, short y);
+void _activateAt(int index, char fishFlag);
+void deactivateAt(short x, short y);
+void activateFishAt(short x, short y);
+void activateSharkAt(short x, short y);
 
 #include "Globals.h"
-#include "GridPosition.h"
 #include "Drawing.h"
 #include "World.h"
 
@@ -71,18 +74,16 @@ int main(int argc, char *argv[])
 {
 	omp_set_num_threads(numThreads);
 	omp_set_nested(1);
-	
-	printf("%d\n", omp_get_max_active_levels());
-	
+		
 	int runCount = 0;	
 	float averageFrames[NUMBER_OF_RUNS];
 	
 	while (runCount < NUMBER_OF_RUNS)
-	{
+	{		
 		printf( "Simulation will run for %d seconds.\n", SIMULATION_LENGTH );
-		
+				
 		int running= 1;
-		int seconds = 0;
+		float totalSeconds = 0.0;
 		double secondTimer = 0.0;
 		int frameCounter = 0;
 		time_t currentTime = 0;
@@ -94,7 +95,6 @@ int main(int argc, char *argv[])
 		if (InitializeOpenGL())
 		{
 			int count = 0;
-			
 			while (running)
 			{
 				++count;
@@ -122,21 +122,11 @@ int main(int argc, char *argv[])
 						
 						if (secondTimer >= 1.0)
 						{
-							secondTimer -= 1.0;
-							framesPerSecond[seconds] = frameCounter;								
-							++seconds;				
-							frameCounter = 0;
-							
-							if (seconds == SIMULATION_LENGTH)
-							{
-								float sum = 0.0f;
-								int count = 0;
-								for (count = 0; count < SIMULATION_LENGTH; count++)
-								{
-									sum += framesPerSecond[count];
-								}
-																
-								averageFrames[runCount] = sum / (float)count;
+							totalSeconds += secondTimer;
+							secondTimer = 0.0;							
+							if (totalSeconds >= SIMULATION_LENGTH)
+							{						
+								averageFrames[runCount] = (float)frameCounter / totalSeconds;
 								running = 0;
 								runCount ++;								
 							}

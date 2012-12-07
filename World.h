@@ -8,26 +8,13 @@
 #include "Shark.h"
 #include "Globals.h"
 #include <time.h>
+#include <stdio.h>
 #include <stdlib.h>
-
-/*! \brief Used to store pionters to either fish or sharks.
- *
- *  Note: Used this struct instead of a void * Array as the casting process
- *  is messy and this is much simplier means of storing different types in one array.
- */
-typedef struct {
-    Fish * pFish;
-    Shark * pShark;
-} GirdObj;
-
- // Array of GirdObjs which
-GirdObj world[GRID_ROWS][GRID_COLUMNS ];
-
+#include <assert.h>
 
 /*! \brief Handles wrap around
- *
- *  \returns A grid position in the bounds of the world
-*/
+ *  Handles wrap around
+ */
 void manageWrapAround(short * x, short * y)
 {
     if (*x < 0)
@@ -41,93 +28,43 @@ void manageWrapAround(short * x, short * y)
         *y = 0;
 }
 
-
-/*! \brief Creates either a fish or a shark.
+/*! \brief Deactivates all entities at a given x,y coordinate
  *
- * Function only really exists because as a user I hate short flags
+ *  Deactivates all entities at a given x,y coordinate
+ *  \param x - The x coordinate
+ *  \param y - The y coordinate
  */
-void _createAt(short x, short y, short fishFlag)
+void deactivateAt(short x, short y)
 {
-    if( world[x][y].pFish == 0 &&  world[x][y].pShark == 0)
-    {
-        if(fishFlag)
-        {
-            world[x][y].pFish = fishFactory(x,y);
-        }
-        else
-        {
-            world[x][y].pShark = sharkFactory(x,y);
-        }
-    }
+    int index = x + (y * GRID_COLUMNS);
+    sharksCollection[index].mSpawnCounter = INACTIVE_VALUE;
+    fishCollection[index].mSpawnCounter = INACTIVE_VALUE;
 }
 
-/*! \brief Moves the fish pointer within the grid.
+/*! \brief Activates a fish at a given x,y coordinate
  *
- *  Moves the fish pointer within the grid.
- *  Performs no bounds checking.
- *  \param newPos - The grid position to move to.
- *  \param pFish - The fish to move.
+ *  Activates a fish at a given x,y coordinate
+ *  \param x - The x coordinate
+ *  \param y - The y coordinate
  */
-void moveFishPointerTo(GridPosition newPos, Fish* pFish)
+void activateFishAt(short x, short y)
 {
-	world[pFish->pos.X][pFish->pos.Y].pFish = 0;
-	world[newPos.X][newPos.Y].pFish = pFish;
+    int index =  x + (y * GRID_COLUMNS);
+    fishCollection[index].mSpawnCounter = 0;
 }
 
-/*! \brief Moves the shark pointer within the grid.
+/*! \brief Activates a shark at a given x,y coordinate
  *
- *  Moves the shark pointer within the grid.
- *  Performs no bounds checking.
- *  \param newPos - The grid position to move to.
- *  \param pShark - The shark to move.
+ *  Activates a shark at a given x,y coordinate
+ *  \param x - The x coordinate
+ *  \param y - The y coordinate
  */
-void moveSharkPointerTo(GridPosition newPos, Shark *pShark)
+void activateSharkAt(short x, short y)
 {
-	world[pShark->pos.X][pShark->pos.Y].pShark = 0;
-	world[newPos.X][newPos.Y].pShark = pShark;
+    int index =  x + (y * GRID_COLUMNS);
+    sharksCollection[index].mSpawnCounter = 0;
+    sharksCollection[index].mStarveCounter = 0;
 }
-
-/*! \brief Destories the enity at given grid location
- *
- *  Destories the enity at given grid location and frees memory
- *  \param x - index shorto array
- *  \param y - index shorto array
- */
-void destroyAt(short x, short y)
-{
-	if(world[x][y].pFish)
-	{
-    	free(world[x][y].pFish);
-    	world[x][y].pFish = 0;
-	}
-	else if(world[x][y].pShark)
-	{
-    	free(world[x][y].pShark);
-    	world[x][y].pShark = 0;
-	}
-}
-
-
-/*! \brief Creates fish at given [x][y]
- *
- *  Creates fish at given [x][y]
- *  \param x - index shorto array
- *  \param y - index shorto array
- */
-void createFishAt(short x, short y){
-    _createAt(x,y,1);
-}
-
-/*! \brief Creates shark at given [x][y]
- *
- *  Creates shark at given [x][y]
- *  \param x - index shorto array
- *  \param y - index shorto array
- */
-void createSharkAt(short x, short y){
-    _createAt(x,y,0);
-}
-
 
 /*! \brief Populates the world
  *
@@ -137,89 +74,89 @@ void createSharkAt(short x, short y){
  */
 void populateWorld(short nFish, short nSharks)
 {
-	//    Its probably a good idea to emphasize that srand() should only be called once.
-	//    Also, in a threaded application, might want to make sure that the generator's
-	//    state is stored per thread, and seed the generator once for each thread.
-	#pragma omp parallel
+	srand(time(NULL));
+    short total = nFish + nSharks;
+    short i = 0; //C90 standard doesn't allow loop var declaration inside loop
+    int index = 0;
+    int size = SHARK_LIST_LENGTH;
+    
+    #pragma omp privatefirst (size) parallel private (i, index, nFish) shared (fishCollection, sharksCollection)
     {
-    	srand(time(NULL));
-	    short total = nFish + nSharks;
-	    short x = 0;
-	    short y = 0;
-	    short i = 0; //C90 standard doesn't allow loop var declaration inside loop
+        #pragma omp for
+        for(index = 0; index < size; index++)
+        {
+            fishCollection[index] = fishFactory();
+            sharksCollection[index] = sharkFactory();
+        }
 
-    	#pragma omp for
-	    for(i = 0; i < total; i++)
-	    {
-	        x = rand() % GRID_ROWS;
-	        y = rand() % GRID_COLUMNS;
-
-	        if(i < nFish)
-	        {
-	            //continue with popluating fish
-	            createFishAt(x,y);
-	        }
-	        else
-	        {
-	            // once all fish done popluate sharks
-	            createSharkAt(x,y);
-	        }
-	    }
-	}
+        #pragma omp barrier
+        
+        #pragma omp for
+        for(i = 0; i < total; i++)
+        {
+            index = rand() % size;
+            if(i < nFish)
+            {
+                //continue with popluating fish
+                fishCollection[index].mSpawnCounter = 0;
+            }
+            else
+            {
+                // once all fish done popluate sharks
+                fishCollection[index].mSpawnCounter = INACTIVE_VALUE;
+                sharksCollection[index].mSpawnCounter = 0;
+            }
+        }
+    }
 }
 
-/*! \ Checks a tile to see if it contains fish or shark
- *  Checks for nulls squares
- *  This will only work for fish so may rename to checkTileFish or somesuch
+/*! \brief Checks if there is any entity at a tile
  *
+ *  Checks if there is any entity at a tile
+ *  \param x - The x position of the tile
+ *  \param y - The y position of the tile
+ *  \returns A value indicating whether the coordinate contains an entity or not.
  */
-short checkTileForEntity(short x, short y)
+char checkTileForEntity(short x, short y)
 {
-    short i = 0;
+    manageWrapAround(&x, &y);
+    int index = (GRID_COLUMNS * y) + x;
 
-    if (x < 0) // handle wrap around
-        x = GRID_COLUMNS - 1;
-    else if (x >= GRID_COLUMNS)
-        x = 0;
-
-    if (y < 0)
-        y = GRID_ROWS - 1;
-    else if (y >= GRID_ROWS)
-        y = 0;
-
-    if(world[x][y].pShark || world[x][y].pFish)
-        i = 1;
-
-     return i;
+    if( fishCollection[index].mSpawnCounter != INACTIVE_VALUE || sharksCollection[index].mSpawnCounter != INACTIVE_VALUE )
+        return 1;
+    else
+     	return 0;
 }
 
-/*
- * Checks if there is a shark short a tile
- * @param short x The x position of the tile
- * @param short y The y position of the tile
- * @returns True for shark, false otherwise
+/*! \brief Checks if there is a shark at a tile
+ *
+ *  Checks if there is a shark at a tile
+ *  \param x - The x position of the tile
+ *  \param y - The y position of the tile
+ *  \returns A value indicating whether the coordinate contains a shark or not.
  */
-short checkTileForShark(short x, short y)
+char checkTileForShark(short x, short y)
 {
     manageWrapAround(&x, &y);
 
-    if (world[x][y].pShark !=0)
+    if (sharksCollection[(GRID_COLUMNS * y) + x].mSpawnCounter != INACTIVE_VALUE )
         return 1;
     else
         return 0;
 }
 
-/*
- * Checks if there is a shark short a tile
- * @param short x The x position of the tile
- * @param short y The y position of the tile
- * @returns The poshorter to the fish in the tile or null
+/*! \brief Checks if there is a fish at a tile
+ *
+ *  Checks if there is a fish at a tile
+ *  \param x - The x position of the tile
+ *  \param y - The y position of the tile
+ *  \returns A value indicating whether the coordinate contains a fish or not.
  */
-short checkTileForFish(short x, short y)
+char checkTileForFish(short x, short y)
 {
     manageWrapAround(&x, &y);
 
-    if (world[x][y].pFish !=0)
+    if (fishCollection[(GRID_COLUMNS * y) + x].mSpawnCounter != INACTIVE_VALUE )
         return 1;
     else
         return 0;
@@ -229,77 +166,47 @@ short checkTileForFish(short x, short y)
 /*! update
  */
 void updateWorld()
-{		  
-	#pragma omp parallel
-	{
-		short y = 0;
-		short x = 0;
-		#pragma omp for private(x, y)
-		for(y = 0; y < GRID_ROWS; y++)
-		{
-			#pragma omp privatefirst(y) for private(GRID_COLUMNS)
-			for(x = 0; x < GRID_COLUMNS; x++)
-			{
-				if(world[x][y].pFish != 0) // Check if null
-				{
-				    updateFish(x, y, world[x][y].pFish);
-				}
-				else if(world[x][y].pShark != 0) // Check if null
-				{
-				    updateShark(x, y, world[x][y].pShark);
-				}
-			}
-		}
-		
-		#pragma omp barrier
-
-		#pragma omp for private(x, y)
-		for(y = 0; y < GRID_ROWS; y++)
-		{
-			#pragma omp privatefirst(y) for private(GRID_COLUMNS)
-			for(x= 0; x < GRID_COLUMNS; x++)
-			{
-				if(world[x][y].pFish != 0)
-				{
-				    world[x][y].pFish->updated = 0;
-				}
-				else if(world[x][y].pShark != 0)
-				{
-				    world[x][y].pShark->updated = 0;
-				    // Check if the shark is dead
-				    if (world[x][y].pShark->mDead)
-				    {
-					destroyAt(x, y);
-				    }
-				}
-			} // end for x
-		} // end for y
-	}
-} // end updateWorld
+{
+	short y = 0;
+    short x = 0;
+    int count = 0;
+    #pragma omp parallel for shared (fishCollection, sharksCollection) private (x, y)
+    for(count = 0; count < SHARK_LIST_LENGTH; ++count)
+    {
+        y = count / GRID_COLUMNS;
+        x = count % GRID_COLUMNS;
+        if (fishCollection[count].mSpawnCounter != INACTIVE_VALUE )
+        {
+            updateFish(x, y, &fishCollection[count]);
+        }
+        else if (sharksCollection[count].mSpawnCounter != INACTIVE_VALUE )
+        {
+            updateShark(x, y, &sharksCollection[count]);
+        }
+    }
+}
 
 
 /*! \brief Draws the world
  */
 void drawWorld()
 {
-    short y = 0;
-    short x = 0;
-    for(x = 0; x < GRID_COLUMNS; x++)
+    int y = 0;
+    int x = 0;
+    for(y = 0; y < GRID_ROWS; y++)
     {
-        for(y = 0; y < GRID_ROWS; y++)
-        {
-	    if(world[x][y].pFish != 0)
-	    {
-		DrawFishAt(world[x][y].pFish->pos);
-	    }
-
-	    if(world[x][y].pShark != 0)
-	    {
-		DrawSharkAt(world[x][y].pShark->pos);
-	    }
+        for(x= 0; x < GRID_COLUMNS; x++)
+        { 
+            if (fishCollection[(GRID_COLUMNS * y) + x].mSpawnCounter != INACTIVE_VALUE )
+            {
+                DrawFishAt(x, y);
+            }
+            else if (sharksCollection[(GRID_COLUMNS * y) + x].mSpawnCounter != INACTIVE_VALUE )
+            {
+                DrawSharkAt(x, y);
+            }
         }
     }
-
 }
 
 
@@ -311,15 +218,19 @@ void drawWorld()
  */
 void cleanWorld(){
 
-	short y = 0;
-	short x = 0;
-	for(x = 0; x < GRID_COLUMNS; x++)
-	{
-		for(y = 0; y < GRID_ROWS; y++)
-		{
-		    destroyAt(x,y);
-		}
-	}
+	// short y = 0;
+	// short x = 0;
+	// for(x = 0; x < GRID_COLUMNS; x++)
+	// {
+	// 	for(y = 0; y < GRID_ROWS; y++)
+	// 	{
+	// 	    destroyAt(x,y);
+	// 	}
+	// }
+
+	// fishCollection = Fish[FISH_LIST_LENGTH];
+	// sharksCollection = Shark[SHARK_LIST_LENGTH];
+	// world = GirdObj[GRID_ROWS][GRID_COLUMNS ];
 }
 
 

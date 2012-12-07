@@ -6,82 +6,75 @@
 
 #include "Globals.h"
 #include "World.h"
-#include "GridPosition.h"
 
 /*! \brief A structure to hold the data memebers of Shark.
  *
  *  A simple structure which defines data memebers of Shark.
  */
 typedef struct{
-    GridPosition pos;
-    char updated;  /*!< Bool flag - To stop a enity been updated twice */
     char mSpawnCounter;
     char mStarveCounter;
-    char mDead;
 }Shark;
 
+Shark sharksCollection[SHARK_LIST_LENGTH];
 
 /*! \brief Creates a shark.
  *
- *  Creates a shark type on the heap and initlizes it.
- *  WARNING: The call is repsonisbly for freeing the memory after
+ *  Creates a shark type and initlizes it.
  */
-Shark * sharkFactory(short x, short y)
+Shark sharkFactory()
 {
-       Shark * pShark =  malloc(sizeof(Shark));
-       pShark->pos.X = x;
-       pShark->pos.Y = y;
-       pShark->updated = 1;
-       pShark->mStarveCounter = 0;
-       pShark->mSpawnCounter = 0;
-       pShark->mDead = 0;
-       return pShark;
+   Shark pShark;
+   pShark.mStarveCounter = 0;
+   pShark.mSpawnCounter = INACTIVE_VALUE;
+   return pShark;
 }
 
 /*!
  *  \brief Moves the shark and handles spawning and dying.
  *
- *  \param x The X position of the shark
- *  \param y The Y position of the shark
- *  \param pShark The poshorter to the shark to be moved
+ *  \param x The  old X position of the shark
+ *  \param y The old Y position of the shark
+ *  \param newX The new X position of the shark
+ *  \param newY The new Y position of the shark
+ *  \param pShark The pointer to the shark to be moved
 */
-void sharkMove(short x, short y, Shark * pShark)
+void sharkMove(short x, short y, short newX, short newY, Shark * pShark)
 {
     pShark->mSpawnCounter += 1;
     pShark->mStarveCounter += 1;
 
 	if (pShark->mStarveCounter == SHARK_STARVERATE)
     {
-    	pShark->mDead = 1;
+	pShark->mSpawnCounter = INACTIVE_VALUE;
     }
     else if (pShark->mSpawnCounter == SHARK_SPAWNRATE)
-    {
-    	createSharkAt(x, y);
+    {    	
+    	activateSharkAt(newX, newY);
     	pShark->mSpawnCounter = 0;
     }
     else
-    {
-		GridPosition newPosition;
-		newPosition.X = x;
-		newPosition.Y = y;
-		moveSharkPointerTo(newPosition, pShark);
-	    	pShark->pos.X = x;
-	    	pShark->pos.Y = y;
+    {   
+    	Shark * newPShark = &sharksCollection[newX + (newY * GRID_COLUMNS)];
+	char spawnCount = pShark->mSpawnCounter;
+    	deactivateAt(x, y);
+    	activateSharkAt(newX, newY);
+    	newPShark->mStarveCounter = pShark->mStarveCounter;
+    	newPShark->mSpawnCounter = spawnCount;
     }
 }
 
 /*!
  *  \brief Function for the shark to hunt for fish
  *
- *  \param pShark The poshorter to the shark to be moved
+ *  \param x The  old X position of the shark
+ *  \param y The old Y position of the shark
+ *  \param pShark The pointer to the shark to be moved
 */
-char sharkHunt(Shark * pShark)
+char sharkHunt(short x, short y, Shark * pShark)
 {
 	char dir[4];
 	char i = 0;
-
-	short x = pShark->pos.X;
-	short y = pShark->pos.Y;
 
 	if (checkTileForFish(x, y + 1) == 1)
 	{
@@ -104,32 +97,33 @@ char sharkHunt(Shark * pShark)
 		++i;
 	}
 
-
 	if (i > 0)
 	{
+		short newX = x;
+		short newY = y;
 		i = rand() % i;
-
 		switch( dir[i] )
-        	{
-	        	case 'N': // North
-        			y+=1;
-	                break;
-	            case 'S': // South
-            		y-=1;
-	                break;
-	            case 'E': // East
-	            	x+=1;
-	                break;
-	            case 'W': // West
-	            	x-=1;
-	                break;
-	            default :
-	            	break;
-        	}// end switch
+    	{
+        	case 'N': // North
+    			newY+=1;
+                break;
+            case 'S': // South
+        		newY-=1;
+                break;
+            case 'E': // East
+            	newX+=1;
+                break;
+            case 'W': // West
+            	newX-=1;
+                break;
+            default :
+            	break;
+    	}// end switch
 
-		manageWrapAround(&x, &y);
-		destroyAt(x, y);
-		sharkMove(x, y, pShark);
+		manageWrapAround(&newX, &newY);
+		deactivateAt(newX, newY);
+		pShark->mStarveCounter = 0;
+		sharkMove(x, y, newX, newY, pShark);
 		return 1;
 	}
 
@@ -141,19 +135,14 @@ char sharkHunt(Shark * pShark)
  *
  *  \param x The X position of the shark
  *  \param y The Y position of the shark
- *  \param pShark The poshorter to the shark to be moved
+ *  \param pShark The pointer to the shark to be moved
 */
 void updateShark(short x, short y, Shark * pShark)
 {
-    // Make sure not to update twice
-    if (pShark->updated == 1)
-        return;
-
-    if (sharkHunt(pShark) == 0)
+    if (sharkHunt(x, y, pShark) == 0)
     {
     	char dir[4];
 		char i = 0;
-
 
 		if (checkTileForShark(x, y + 1) == 0)
 		{
@@ -179,39 +168,35 @@ void updateShark(short x, short y, Shark * pShark)
 		if (i > 0)
 		{
 			i = rand() % i;
-			x = pShark->pos.X;
-			y = pShark->pos.Y;
+			short newX = x;
+			short newY = y;
 
 			switch( dir[i] )
         	{
 	        	case 'N': // North
-        			y+=1;
+        			newY+=1;
 	                break;
 	            case 'S': // South
-            		y-=1;
+            		newY-=1;
 	                break;
 	            case 'E': // East
-	            	x+=1;
+	            	newX+=1;
 	                break;
 	            case 'W': // West
-	            	x-=1;
+	            	newX-=1;
 	                break;
 	            default :
 	            	break;
         	}// end switch
 
-        	manageWrapAround(&x, &y);
-			sharkMove(x, y, pShark);
-
-			
+        	manageWrapAround(&newX, &newY);
+			sharkMove(x, y, newX, newY, pShark);			
 		}// end if i
     }// end if mFed
     else
     {
     	pShark->mStarveCounter = 0;
     }
-
-    pShark->updated = 1;
 }
 
 #endif

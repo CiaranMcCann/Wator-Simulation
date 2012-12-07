@@ -6,7 +6,6 @@
 
 #include "Globals.h"
 #include "World.h"
-#include "GridPosition.h"
 
 
 /*! \brief A structure to hold the data memebers of Fish.
@@ -14,74 +13,60 @@
  *  A simple structure which defines data memebers of Fish.
  */
 typedef struct{
-    GridPosition pos;
-    short updated;  /*!< Bool flag - To stop a enity been updated twice */
-    short mSpawnCounter;
-
+    char mSpawnCounter;
 }Fish;
 
+Fish fishCollection[FISH_LIST_LENGTH];
 
 /*! \brief Creates fish.
  *
- *  Creates a fish type on the heap and initlizes it.
- *  WARNING: The call is responsible for freeing the memory after
+ *  Creates a fish type and initlizes it.
  */
-Fish * fishFactory(short x, short y)
+Fish fishFactory()
 {
-       Fish * pFish =  malloc(sizeof(Fish));
-       pFish->pos.X = x;
-       pFish->pos.Y = y;
-       pFish->updated = 1;
-       pFish->mSpawnCounter = 0;
-       
-       return pFish;
+    Fish pFish;
+    pFish.mSpawnCounter = INACTIVE_VALUE;
+    return pFish;
 }
 
-/*! \ Moves the fish position
- *  Update the fish spawncounter by 1
- *  If the spawnrate equals the counter create a new fish in the new position. 
- *  
- *  @param short x The x position of the tile
- *  @param short y The x position of the tile
- *  @param Fish *fish Poshorter to the current fish
- */
-void moveFish(short x, short y, Fish *fish)
-{
+/*!
+ *  \brief Moves the fish and handles spawning and dying.
+ *
+ *  \param x The old X position of the fish
+ *  \param y The old Y position of the fish
+ *  \param newX The new X position of the fish
+ *  \param newY The new Y position of the fish
+ *  \param fish The pointer to the fish to be moved
+*/
+void moveFish(short x, short y, short newX, short newY, Fish *fish)
+{    
     fish->mSpawnCounter +=1;
-
     if(fish->mSpawnCounter==FISH_SPAWNRATE)
     {
-        fish->mSpawnCounter=0;
-        createFishAt(x,y);
+        fish->mSpawnCounter = 0;
+        activateFishAt(newX, newY);
     }
     else
     {
-    	GridPosition newPosition;
-    	newPosition.X = x;
-    	newPosition.Y = y;
-    	moveFishPointerTo(newPosition, fish);
-    	fish->pos.X = x;
-    	fish->pos.Y = y;
+        Fish * newPFish = &fishCollection[newX + (newY * GRID_COLUMNS)];
+	char spawnCount = fish->mSpawnCounter;
+        deactivateAt(x, y);
+        activateFishAt(newX, newY);
+        newPFish->mSpawnCounter = spawnCount;
     }
 }
 
-/*! \ Checks the surrounding grid positions for a free tile
- *  Store the possible directions in a character array and increase the 'available' directions
- *  If the available directions is greater than 0 then a move is possible
- *  Pick a random number from the available directions and pass that to a switch statement
- *  Finally call movefish using the chosen direction
- *  @param short x The x position of the tile
- *  @param short y The y position of the tile
- *  @param Fish *fish Poshorter to the current fish
- */
+/*!
+ *  \brief Updates the fish.
+ *
+ *  \param x The X position of the fish
+ *  \param y The Y position of the fish
+ *  \param pFish The pointer to the fish to be moved
+*/
 void updateFish(short x, short y, Fish *pFish)
 {
-    // Make sure updated is set to 0 
-    if (pFish->updated == 1)
-        return;
-
     char direction[4];
-    short available = 0; //!< Number of available directions
+    char available = 0; // Number of available directions
 
     // Add all available directions to a char array
     // Increase the available parameter
@@ -105,33 +90,33 @@ void updateFish(short x, short y, Fish *pFish)
         available++;
     }
 
-    if(available>0) 
+    if(available > 0) 
     {
         available = rand() % available;
-        x = pFish->pos.X;
-        y = pFish->pos.Y;
+        short newX = x;
+        short newY = y;
 
         // Set the direction
         switch( direction[available] )
         {
                 case 'N': // Direction is North
-                    y+=1;
+                    newY+=1;
                     break;
                 case 'S': // Direction is South
-                    y-=1;
+                    newY-=1;
                     break;
                 case 'E': // Direction is East
-                    x+=1;
+                    newX+=1;
                     break;
                 case 'W': // Direction is West
-                    x-=1;
+                    newX-=1;
                     break;
                 default :
                     break;
         }// end switch
 
-        manageWrapAround(&x, &y);
-        moveFish(x, y, pFish);                
+        manageWrapAround(&newX, &newY);
+        moveFish(x, y, newX, newY, pFish);                
     }
 }
 
